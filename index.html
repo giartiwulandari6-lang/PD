@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Resmi Kelatnas Indonesia Perisai Diri</title>
+  <!-- Tailwind CSS & DaisyUI Pustaka Komponen Modern -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <style>
@@ -16,6 +17,7 @@
 </head>
 <body class="bg-base-200 min-h-screen font-sans text-base-content">
 
+  <!-- AREA 0: PUBLIC VERIFICATION LAYER DETECTOR (TAMPIL JKA QR DI SCAN) -->
   <div id="public-verification-layer" class="container mx-auto max-w-md p-6 my-10 hidden">
     <div class="card bg-base-100 shadow-2xl border-2 border-success p-6 text-center space-y-4">
       <div class="text-5xl">🛡️</div>
@@ -33,15 +35,19 @@
     </div>
   </div>
 
+  <!-- CONTAINER CORE APLIKASI WEB UTAMA -->
   <div id="core-application-wrapper" class="block">
     
+    <!-- NAVBAR UTAMA -->
     <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50 px-4 md:px-8">
       <div class="flex-1">
         <a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="gantiTab('berita')">PERISAI DIRI</a>
       </div>
       <div class="flex-none gap-4">
+        <!-- Tombol Login -->
         <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk / Daftar</button>
         
+        <!-- Badge Profil Avatar -->
         <div id="user-profile-badge" class="dropdown dropdown-end hidden">
           <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online">
             <div class="w-10 rounded-full ring ring-error ring-offset-base-100 ring-offset-2">
@@ -58,9 +64,11 @@
       </div>
     </div>
 
+    <!-- MAIN GRID CONTAINER -->
     <div class="container mx-auto p-4 md:p-6 max-w-7xl">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
+        <!-- KOLOM KIRI: MENU & FILTER HIDDEN DRAWER -->
         <div class="space-y-4">
           <div class="card bg-base-100 shadow-xl p-3">
             <ul class="menu bg-base-100 rounded-box w-full space-y-1" id="main-menu-tabs">
@@ -76,6 +84,7 @@
             </ul>
           </div>
 
+          <!-- COLLAPSIBLE ACCORDION FOR FILTER TOOLS (HEMAT RUANG) -->
           <details class="collapse collapse-arrow bg-base-100 shadow-xl rounded-2xl">
             <summary class="collapse-title text-xs font-bold uppercase tracking-wider opacity-70">⚙️ Opsi Pencarian & Filter</summary>
             <div class="collapse-content space-y-3 pt-0">
@@ -104,10 +113,12 @@
           </details>
         </div>
 
+        <!-- KOLOM KANAN: WINDOW AREA UTAMA -->
         <div class="lg:col-span-3">
           <div class="card bg-base-100 shadow-xl p-6 min-h-[65vh]">
             <div id="global-loader" class="text-center py-10 hidden"><span class="loading loading-spinner loading-lg text-error"></span></div>
 
+            <!-- TAB PANEL 1: BERITA -->
             <div id="view-berita" class="tab-view hidden space-y-4">
               <div class="flex justify-between items-center border-b pb-3">
                 <h2 class="text-xl font-bold text-gray-800">📰 Pengumuman & Berita Terbaru</h2>
@@ -127,6 +138,7 @@
               <div id="list-berita-render" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
+            <!-- TAB PANEL 2: MATERI KURIKULUM -->
             <div id="view-materi" class="tab-view hidden space-y-4">
               <div class="flex justify-between items-center border-b pb-3">
                 <h2 class="text-xl font-bold text-gray-800">🥋 Kurikulum Pembelajaran Latihan</h2>
@@ -147,10 +159,12 @@
               <div id="list-materi-render" class="space-y-2"></div>
             </div>
 
+            <!-- TAB PANEL 3: ABSENSI & JURNAL KELOMPOK -->
             <div id="view-absensi" class="tab-view hidden space-y-4">
               <h2 class="text-xl font-bold border-b pb-3">📅 Log Presensi Latihan & Jurnal Kelompok</h2>
               <button class="btn btn-error btn-block text-white py-3 font-bold h-auto shadow" onclick="hadirLatihan()">🔴 ABSEN MANDIRI VIA HP SAYA</button>
               
+              <!-- PANEL PENGABSENAN MASSAL KOLEKTIF OLEH PELATIH -->
               <div id="panel-pelatih-absen" class="bg-base-200 p-4 rounded-xl space-y-3 opsi-admin hidden border border-base-300 shadow-sm">
                 <h3 class="font-bold text-sm text-error flex items-center gap-1">📋 Panel Pengabsenan Pelatih & Jurnal Log Latihan</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -180,12 +194,14 @@
               </table></div>
             </div>
 
+            <!-- TAB PANEL 4: ADVANCED UKT MODULE -->
             <div id="view-ukt" class="tab-view hidden space-y-6">
               <div class="tabs tabs-boxed bg-base-200 p-1 flex gap-1">
                 <button id="sub-tab-peserta" class="tab tab-active font-bold text-xs" onclick="gantiSubTabUKT('peserta')">🏅 Peserta & Penilaian</button>
                 <button id="sub-tab-kriteria" class="tab font-bold text-xs opsi-admin hidden" onclick="gantiSubTabUKT('kriteria')">⚙️ Pengaturan Komponen Nilai Sabuk</button>
               </div>
 
+              <!-- SUB-TAB 1: PESERTA & INPUT NILAI DINAMIS -->
               <div id="sub-view-peserta" class="space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
                   <h3 class="font-bold text-sm opacity-70">Daftar Pengajuan UKT Anggota</h3>
@@ -196,6 +212,7 @@
                   <tbody id="list-ukt-render"></tbody>
                 </table></div>
 
+                <!-- FORM INPUT PENILAIAN DINAMIS PER TINGKATAN SABUK -->
                 <div id="block-form-penilaian-ukt" class="bg-base-300 p-4 rounded-xl space-y-3 hidden border border-error shadow-inner">
                   <h4 class="font-bold text-xs text-error">Docs Evaluasi Penilaian Ujian - Tingkat Sabuk: <span id="lbl-penilaian-sabuk" class="badge badge-outline"></span></h4>
                   <input type="hidden" id="nilai-ukt-row">
@@ -215,6 +232,7 @@
                 </div>
               </div>
 
+              <!-- SUB-TAB 2: KELOLA MATERI EVALUASI NILAI -->
               <div id="sub-view-kriteria" class="space-y-4 hidden">
                 <div id="form-materi-ukt-block" class="bg-base-200 p-4 rounded-xl space-y-2">
                   <h4 class="font-bold text-xs">Tambah / Edit Komponen Parameter Nilai Sabuk</h4>
@@ -232,6 +250,7 @@
               </div>
             </div>
 
+            <!-- TAB PANEL 5: SURAT -->
             <div id="view-surat" class="tab-view hidden space-y-4">
               <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">📁 Arsip Sekretariat</h2><button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('surat')">+ Registrasi Surat</button></div>
               <div id="form-surat-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
@@ -242,6 +261,7 @@
               <table class="table table-sm"><thead><tr class="bg-base-300"><th>Nomor</th><th>Judul / Perihal</th><th>Kategori</th><th>Opsi</th></tr></thead><tbody id="list-surat-render"></tbody></table>
             </div>
 
+            <!-- TAB PANEL 6: KEUANGAN -->
             <div id="view-keuangan" class="tab-view hidden space-y-4">
               <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">💰 Laporan Kas Keuangan</h2><span class="badge badge-lg badge-success text-white font-bold" id="txt-saldo">Rp. 0</span></div>
               <div id="form-keuangan-block" class="p-4 bg-base-200 rounded-xl opsi-admin hidden space-y-2">
@@ -252,6 +272,7 @@
               <table class="table table-sm"><thead><tr class="bg-base-300"><th>Tanggal</th><th>Jenis Kas</th><th>Kategori</th><th>Nominal</th><th>Keterangan</th><th>Hapus/Edit</th></tr></thead><tbody id="list-keuangan-render"></tbody></table>
             </div>
 
+            <!-- TAB PANEL 7: MANAJEMEN ANGGOTA -->
             <div id="view-anggota" class="tab-view hidden space-y-4">
               <h2 class="text-xl font-bold border-b pb-3">👥 Pengaturan Hak Akses Akun Anggota</h2>
               <div id="form-anggota-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
@@ -272,6 +293,7 @@
     </div>
   </div>
 
+  <!-- MODAL LUXURY PIAGAM IJAZAH PRINT LAYOUT -->
   <dialog id="modalIjazah" class="modal">
     <div class="modal-box max-w-2xl bg-white text-black p-0 rounded-none border-[12px] border-double border-amber-600">
       <div id="ijazah-print-area" class="p-10 text-center space-y-6 bg-amber-50">
@@ -280,7 +302,7 @@
         <p class="text-sm mt-4 font-serif">Pengurus PB Kelatnas Indonesia Perisai Diri menyatakan bahwa:</p>
         <h2 id="p-ijazah-nama" class="text-3xl font-serif font-bold underline my-2 text-neutral-800">Nama Anggota</h2>
         <p class="text-sm font-serif">Asal Ranting / Unit Latihan: <b id="p-ijazah-ranting"></b></p>
-        <p class="text-sm font-serif max-w-md mx-auto mt-4">Dinyatakan telah menempuh ujian kelayakan akademik fisik murni dan dinyatakan **LULUS** berhak menyandang tingkatan sabuk sabuk:</p>
+        <p class="text-sm font-serif max-w-md mx-auto mt-4">Dinyatakan telah menempuh ujian kelayakan akademik fisik murni dan dinyatakan **LULUS** berhak menyandang tingkatan sabuk:</p>
         <div class="my-3"><span id="p-ijazah-sabuk" class="text-xl font-black px-6 py-2 border-2 border-amber-900 bg-amber-100 text-amber-950 uppercase tracking-widest"></span></div>
         <p class="text-xs text-gray-500 font-serif">Ditetapkan tanggal: <span id="p-ijazah-tgl"></span></p>
         
@@ -299,6 +321,7 @@
     </div>
   </dialog>
 
+  <!-- DIALOG POPUP LOGIN -->
   <dialog id="modalAuth" class="modal">
     <div class="modal-box max-w-sm">
       <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
@@ -318,8 +341,8 @@
     </div>
   </dialog>
 
+  <!-- MOTOR CONTROLLER JAVASCRIPT ENGINE -->
   <script>
-    // URL MAKRO GOOGLE APPS SCRIPT BERHASIL DISINKRONISASI
     const API_URL = "https://script.google.com/macros/s/AKfycbxQ0hkBv2xlRVTFGk-jTj--EFc_wdSXbJhq_jDZRkHkAl9hNC4v5yAtk4UtpO7k6ASCPg/exec";
     
     var currentTab = "berita"; var currentSubTabUKT = "peserta"; var userAktif = null;
@@ -347,6 +370,24 @@
       }
       initLoadPublicData();
     };
+
+    // FUNGSI UTAMA INTERAKSI POPUP MODAL LOGIN (FIXED)
+    function bukaModalAuth() {
+      document.getElementById('block-login-form').classList.remove('hidden');
+      document.getElementById('block-register-form').classList.add('hidden');
+      document.getElementById('modalAuth').showModal();
+    }
+    function pindahKeFormRegistrasi() {
+      document.getElementById('block-login-form').classList.add('hidden');
+      document.getElementById('block-register-form').classList.remove('hidden');
+    }
+    function pindahKeFormLogin() {
+      document.getElementById('block-login-form').classList.remove('hidden');
+      document.getElementById('block-register-form').classList.add('hidden');
+    }
+    function logoutApp() {
+      location.reload();
+    }
 
     // LINK DRIVE STABLE CDN CONVERTER HD (FIX GAMBAR TIDAK MUNCUL)
     function bersihLinkDrive(url) {
@@ -457,6 +498,7 @@
 
       if (currentTab === 'berita') {
         var container = document.getElementById('list-berita-render'); container.innerHTML = '';
+        if(data.length === 0) { container.innerHTML = '<p class="text-center py-6 text-xs opacity-50 w-full">Belum ada berita terbaru.</p>'; return; }
         data.forEach(b => {
           var imgClean = bersihLinkDrive(b.foto);
           var img = imgClean ? `<img src="${imgClean}" class="w-full h-40 object-cover">` : '';
