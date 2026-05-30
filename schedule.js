@@ -13,12 +13,12 @@ function renderJadwalVisual(data) {
   }
 
   data.forEach(j => {
-    // 1. SMART LOGIC GOOGLE MAPS: Prioritaskan koordinat, jika kosong gunakan nama tempat untuk search query
+    // FIX SINKRONISASI TEMPLATE LITERAL UNTUK GOOGLE MAPS
     var gmapsUrl = j.koordinat ? 
       `https://www.google.com/maps/search/?api=1&query=${j.koordinat}` : 
       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(j.tempat + ' Perisai Diri')}`;
 
-    // 2. SMART LOGIC WHATSAPP CLEANER: Ubah otomatis format "085xxx" atau "+62" menjadi standar murni internasional "6285xxx"
+    // FORMAT CLEANER WHATSAPP: Mengubah 08xxx menjadi 628xxx secara otomatis
     var nomorBersih = j.kontak.replace(/[^0-9]/g, '');
     if (nomorBersih.startsWith('0')) {
       nomorBersih = '62' + nomorBersih.substr(1);
@@ -51,7 +51,6 @@ function renderJadwalVisual(data) {
   });
 }
 
-// Handler penampilan jendela peta interaktif Leaflet Map (Popup)
 function bukaPetaPopup(koordinatStr, namaTempat) {
   document.getElementById('modalPeta').showModal();
   var parts = koordinatStr.split(",");
