@@ -296,13 +296,40 @@
     function renderDataVisual(data) {
       var isAdmin = (userAktif && userAktif.role.includes("Admin"));
 
-      if (currentTab === 'berita') {
-        var container = document.getElementById('list-berita-render'); container.innerHTML = '';
-        data.forEach(b => {
-          var img = b.foto ? `<img src="${b.foto}" class="w-full h-40 object-cover">` : '';
-          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="pemicuEditBerita(${b.rowNum},'${b.judul}','${b.isi}','${b.kategori}')">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button>` : '';
-          container.innerHTML += `<div class="card card-compact bg-base-100 shadow-md border overflow-hidden">${img}<div class="card-body"><h2 class="card-title text-sm">${b.judul} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2><p class="text-[10px] opacity-40">${b.tanggal}</p><p class="text-xs text-gray-600 mt-1">${b.isi}</p><div class="card-actions justify-end gap-1">${adminBtn}</div></div></div>`;
-        });
+     if (currentTab === 'berita') {
+  var container = document.getElementById('list-berita-render'); container.innerHTML = '';
+  if(data.length === 0) { container.innerHTML = '<p class="text-muted text-center py-4">Tidak ada berita.</p>'; return; }
+  
+  data.forEach(b => {
+    var img = b.foto ? `<img src="${b.foto}" class="w-full h-44 object-cover">` : '';
+    
+    // LOGIKA POTONG KATA (Jika teks lebih dari 120 karakter, sembunyikan sisanya)
+    var isiTextTextbox = '';
+    if (b.isi.length > 120) {
+      isiTextTextbox = `
+        <span class="short-text">${b.isi.substring(0, 120)}...</span>
+        <span class="full-text hidden">${b.isi}</span>
+        <button class="btn btn-link btn-xs p-0 text-error block mt-1 lowercase font-bold" onclick="toggleReadMore(this)">lihat selengkapnya</button>
+      `;
+    } else {
+      isiTextTextbox = b.isi;
+    }
+
+    // Menggunakan fungsi edit berbasis nomor baris array agar terhindar dari bug tanda petik
+    var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="editBeritaByRow(${b.rowNum})">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button>` : '';
+    
+    container.innerHTML += `
+      <div class="card card-compact bg-base-100 shadow-md border border-base-300 overflow-hidden">
+        ${img}
+        <div class="card-body">
+          <h2 class="card-title text-sm font-bold">${b.judul} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2>
+          <p class="text-[10px] opacity-40">${b.tanggal}</p>
+          <div class="text-xs text-gray-600 mt-1">${isiTextTextbox}</div>
+          <div class="card-actions justify-end gap-1 mt-2">${adminBtn}</div>
+        </div>
+      </div>`;
+  });
+}
       }
       else if (currentTab === 'materi') {
         var container = document.getElementById('list-materi-render'); container.innerHTML = '';
@@ -357,13 +384,23 @@
     function pemicuEditAnggota(row, nm, em, ps, rl, rt, tk) { document.getElementById('form-anggota-block').classList.remove('hidden'); document.getElementById('anggota-row-num').value = row; document.getElementById('agt-nama').value = nm; document.getElementById('agt-email').value = em; document.getElementById('agt-pass').value = ps; document.getElementById('agt-role').value = rl; document.getElementById('agt-ranting').value = rt; document.getElementById('agt-tingkatan').value = tk; }
 
     // COMMIT PROCESSOR CONTROLLER
-    function simpanBeritaWeb() {
-      var file = document.getElementById('berita-file-foto').files[0];
-      getBase64Compressed(file, function(base64Data) {
-        var d = { rowNum: document.getElementById('berita-row-num').value, judul: document.getElementById('berita-judul').value, isi: document.getElementById('berita-isi').value, kategori: document.getElementById('berita-kat').value, foto: base64Data };
-        callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-berita-block').classList.add('hidden'); loadDataTerproteksi(); });
-      });
-    }
+function simpanBeritaWeb() {
+  var d = { 
+    rowNum: document.getElementById('berita-row-num').value, 
+    judul: document.getElementById('berita-judul').value, 
+    isi: document.getElementById('berita-isi').value, 
+    kategori: document.getElementById('berita-kat').value, 
+    foto: document.getElementById('berita-foto-url').value // Mengambil string URL gambar
+  };
+  
+  if(!d.judul || !d.isi) { alert("Judul dan isi berita wajib diisi!"); return; }
+  
+  callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { 
+    alert(msg); 
+    document.getElementById('form-berita-block').classList.add('hidden'); 
+    loadDataTerproteksi(); 
+  });
+}
 
     function simpanMateriWeb() {
       var d = { rowNum: document.getElementById('materi-row-num').value, nama: document.getElementById('materi-nama').value, kategori: document.getElementById('materi-kategori').value, link: document.getElementById('materi-link').value, deskripsi: document.getElementById('materi-deskripsi').value, tingkatan: document.getElementById('materi-tingkatan').value };
@@ -431,6 +468,50 @@
         };
       };
     }
+// Fungsi Toggle Menampilkan / Menyembunyikan Berita Panjang
+function toggleReadMore(btn) {
+  var parent = btn.parentElement;
+  var shortSpan = parent.querySelector('.short-text');
+  var fullSpan = parent.querySelector('.full-text');
+  
+  if (shortSpan.classList.contains('hidden')) {
+    shortSpan.classList.remove('hidden');
+    fullSpan.classList.add('hidden');
+    btn.innerText = "lihat selengkapnya";
+  } else {
+    shortSpan.classList.add('hidden');
+    fullSpan.classList.remove('hidden');
+    btn.innerText = "sembunyikan";
+  }
+}
+
+// Fungsi Ambil Data Edit Berita Berdasarkan Baris Tanpa Rusak Tanda Petik (Flawless Quote)
+function editBeritaByRow(rowNum) {
+  var item = rawDataStorage.berita.find(x => x.rowNum == rowNum);
+  if(item) {
+    document.getElementById('form-berita-block').classList.remove('hidden');
+    document.getElementById('berita-row-num').value = item.rowNum;
+    document.getElementById('berita-judul').value = item.judul;
+    document.getElementById('berita-isi').value = item.isi;
+    document.getElementById('berita-kat').value = item.kategori;
+    document.getElementById('berita-foto-url').value = item.foto || "";
+  }
+}
+
+// Sesuaikan Juga Fungsi Pembersih Form Bawaan Anda Khusus Kategori Berita
+function bukaFormFormulir(tipe) {
+  document.getElementById('form-' + tipe + '-block').classList.remove('hidden');
+  document.getElementById(tipe + '-row-num').value = "";
+  if(tipe === 'berita') { 
+    document.getElementById('berita-judul').value = ""; 
+    document.getElementById('berita-isi').value = ""; 
+    document.getElementById('berita-foto-url').value = ""; 
+  }
+  if(tipe === 'materi') { document.getElementById('materi-nama').value=""; document.getElementById('materi-link').value=""; document.getElementById('materi-deskripsi').value=""; }
+  if(tipe === 'surat') { document.getElementById('srt-nomor').value=""; document.getElementById('srt-judul').value=""; document.getElementById('srt-link').value=""; }
+  if(tipe === 'keuangan') { document.getElementById('keu-kat').value=""; document.getElementById('keu-jumlah').value=""; document.getElementById('keu-ket').value=""; }
+}
+    
   </script>
 </body>
 </html>
