@@ -1,5 +1,5 @@
 // CONFIG UTAMA URL SINKRONISASI DATABASE GOOGLE SPREADSHEET
-const API_URL = "https://script.google.com/macros/s/AKfycbxiJj42qSL8X3Ydg1ZGbztgR8qFCiROC3CX_ISPmM8D2NroHJpkCvIRKSLffX6gjNEkIA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyq0s-7ozOupGc1Cav--nBzVFrsw3KoXgI6CJxg8BjZqm_obeCyCEiMUByv9z9H_JTw8Q/exec";
 
 function callAPI(payload, successCallback) {
   document.getElementById('global-loader').classList.remove('hidden');
