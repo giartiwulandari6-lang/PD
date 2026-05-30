@@ -500,11 +500,38 @@
     }
 
     // COMMIT WEB MUTATOR SUBMITTERS
-    function simpanBeritaWeb() {
-      var d = { rowNum: document.getElementById('berita-row-num').value, judul: document.getElementById('berita-judul').value, isi: document.getElementById('berita-isi').value, kategori: document.getElementById('berita-kat').value, foto: document.getElementById('berita-foto-url').value };
-      if(!d.judul || !d.isi) return;
-      callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-berita-block').classList.add('hidden'); loadDataTerproteksi(); });
+ function simpanBeritaWeb() {
+  var fotoUrlRaw = document.getElementById('berita-foto-url').value;
+  
+  // MESIN OTOMATIS: Mengubah link Google Drive biasa menjadi Direct Link HD
+  if (fotoUrlRaw.includes("drive.google.com")) {
+    var fileId = "";
+    if (fotoUrlRaw.includes("id=")) {
+      fileId = fotoUrlRaw.split("id=")[1].split("&")[0];
+    } else if (fotoUrlRaw.includes("/d/")) {
+      fileId = fotoUrlRaw.split("/d/")[1].split("/")[0];
     }
+    if (fileId !== "") {
+      fotoUrlRaw = "https://drive.google.com/uc?export=view&id=" + fileId;
+    }
+  }
+
+  var d = { 
+    rowNum: document.getElementById('berita-row-num').value, 
+    judul: document.getElementById('berita-judul').value, 
+    isi: document.getElementById('berita-isi').value, 
+    kategori: document.getElementById('berita-kat').value, 
+    foto: fotoUrlRaw // Sudah bersih dan otomatis dikonversi ke HD
+  };
+  
+  if(!d.judul || !d.isi) { alert("Judul dan isi berita wajib diisi!"); return; }
+  
+  callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { 
+    alert(msg); 
+    document.getElementById('form-berita-block').classList.add('hidden'); 
+    loadDataTerproteksi(); 
+  });
+}
 
     function simpanMateriWeb() {
       var d = { rowNum: document.getElementById('materi-row-num').value, nama: document.getElementById('materi-nama').value, kategori: document.getElementById('materi-kategori').value, link: document.getElementById('materi-link').value, deskripsi: document.getElementById('materi-deskripsi').value, tingkatan: document.getElementById('materi-tingkatan').value };
