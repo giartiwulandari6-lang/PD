@@ -1,5 +1,5 @@
 // CONFIG UTAMA URL SINKRONISASI DATABASE GOOGLE SPREADSHEET
-const API_URL = "https://script.google.com/macros/s/AKfycbyspHrLwmxL4z8t7QlGhgNJegnR93OxpsRk6azMNJ8G8_BZF0PAyVX5BtzJcg_3cwzRjw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxiJj42qSL8X3Ydg1ZGbztgR8qFCiROC3CX_ISPmM8D2NroHJpkCvIRKSLffX6gjNEkIA/exec";
 
 function callAPI(payload, successCallback) {
   document.getElementById('global-loader').classList.remove('hidden');
@@ -7,17 +7,25 @@ function callAPI(payload, successCallback) {
   .then(res => res.json())
   .then(res => { 
     document.getElementById('global-loader').classList.add('hidden'); 
+    
+    // Deteksi jika server Apps Script mengirimkan sinyal kegagalan internal struktur sheet
+    if (res && res.sukses === false && res.error) {
+      alert("🚨 Kendala Server Database: " + res.error);
+      return;
+    }
     successCallback(res); 
   })
   .catch(err => {
     document.getElementById('global-loader').classList.add('hidden');
+    alert("❌ Gagal terhubung ke server database. Periksa koneksi internet atau setelan deployment Google Apps Script Anda.");
     console.error("API Connection Error: ", err);
   });
 }
 
-// FIX TOTAL CDN DRIVE LINK BYPASS SECURITY CORRUPTION
+// CONVERTER FIX PROXY DRIVE AGAR FOTO DI TAB BERITA DAN IJAZAH MUNCUL HD
 function bersihLinkDrive(url) {
   if (!url || typeof url !== 'string') return "";
+  // Mengubah tautan drive share biasa menjadi format direct stream data murni bypass CORS
   if (url.includes("drive.google.com")) {
     var fileId = "";
     if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; } 
