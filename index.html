@@ -6,61 +6,37 @@
   <title>Portal Resmi Kelatnas Indonesia Perisai Diri</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    @media print { 
-      body * { visibility: hidden; } 
-      #ijazah-print-area, #ijazah-print-area * { visibility: visible; } 
-      #ijazah-print-area { position: absolute; left: 0; top: 0; width: 100%; } 
-    }
+    @media print { body * { visibility: hidden; } #ijazah-print-area, #ijazah-print-area * { visibility: visible; } #ijazah-print-area { position: absolute; left: 0; top: 0; width: 100%; } }
+    #peta-box { height: 320px; width: 100%; border-radius: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body class="bg-base-200 min-h-screen font-sans text-base-content">
 
-  <div id="public-verification-layer" class="container mx-auto max-w-xl p-4 my-6 hidden">
-    <div class="card bg-base-100 shadow-2xl border-2 border-success p-6 text-center space-y-4">
-      <div class="text-5xl">🛡️</div>
-      <h2 class="text-xl font-bold text-success">E-Verification Sukses</h2>
-      <p class="text-xs text-gray-500">Sistem Sertifikasi Elektronik Kelatnas Indonesia Perisai Diri menyatakan dokumen ini <b class="text-success">ASLI & SAH</b></p>
-      <div class="divider my-1"></div>
-      
-      <div class="flex flex-col md:flex-row gap-4 items-center bg-base-200 p-4 rounded-xl text-left text-sm">
-        <img id="v-foto" src="" class="w-24 h-32 object-cover rounded border-2 border-success bg-gray-300 shadow">
-        <div class="space-y-2 flex-1 w-full">
-          <div><span class="opacity-50 text-xs block">ID Sertifikat:</span> <b id="v-id" class="text-error"></b></div>
-          <div><span class="opacity-50 text-xs block">Nama Anggota:</span> <b id="v-nama"></b></div>
-          <div><span class="opacity-50 text-xs block">Tempat, Tanggal Lahir:</span> <b id="v-ttl"></b></div>
-          <div><span class="opacity-50 text-xs block">Asal Unit/Ranting:</span> <b id="v-ranting"></b></div>
-          <div><span class="opacity-50 text-xs block">Tingkatan Sabuk Lulus:</span> <span class="badge badge-error text-white font-bold text-xs" id="v-sabuk"></span></div>
-          <div><span class="opacity-50 text-xs block">Tanggal Kelulusan:</span> <b id="v-tgl"></b></div>
-        </div>
-      </div>
-      
-      <div class="text-left space-y-2 mt-2">
-        <h4 class="text-xs font-bold uppercase opacity-60 tracking-wider">📊 Transkrip Rincian Nilai Pos:</h4>
-        <div class="overflow-x-auto bg-base-100 rounded-xl border"><table class="table table-sm table-zebra w-full text-xs">
-          <thead><tr class="bg-neutral text-white"><th>Materi Pos</th><th>Sub-Komponen Penilaian</th><th>Nilai Akumulasi</th></tr></thead>
-          <tbody id="v-list-nilai-body"></tbody>
-        </table></div>
-      </div>
-      <button class="btn btn-neutral btn-sm btn-block mt-4" onclick="window.location.href=window.location.origin">Buka Portal Utama</button>
+  <dialog id="modalPeta" class="modal">
+    <div class="modal-box max-w-lg">
+      <h3 class="font-bold text-sm mb-3">📍 Lokasi Latihan Terpilih</h3>
+      <div id="peta-box"></div>
+      <div class="modal-action"><button class="btn btn-sm btn-neutral" onclick="document.getElementById('modalPeta').close()">Tutup Peta</button></div>
     </div>
-  </div>
+  </dialog>
+
+  <div id="public-verification-layer" class="container mx-auto max-w-xl p-4 my-6 hidden"></div>
 
   <div id="core-application-wrapper" class="block">
     <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50 px-4 md:px-8">
       <div class="flex-1"><a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="gantiTab('berita')">PERISAI DIRI</a></div>
       <div class="flex-none gap-4">
         <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk / Daftar</button>
-        
         <div id="user-profile-badge" class="dropdown dropdown-end hidden">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online">
-            <div class="w-10 rounded-full ring ring-error"><img id="user-avatar-img" src="" /></div>
-          </div>
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online"><div class="w-10 rounded-full ring ring-error"><img id="user-avatar-img" src="" /></div></div>
           <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-neutral">
             <li><span id="user-menu-name" class="font-bold text-error"></span></li>
             <li><span id="user-menu-role" class="text-xs badge badge-ghost"></span></li>
             <div class="divider my-1"></div>
-            <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar / Log Out</a></li>
+            <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar</a></li>
           </ul>
         </div>
       </div>
@@ -68,35 +44,20 @@
 
     <div class="container mx-auto p-4 md:p-6 max-w-7xl">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
         <div class="space-y-4">
           <div class="card bg-base-100 shadow-xl p-3">
             <ul class="menu bg-base-100 rounded-box w-full space-y-1" id="main-menu-tabs">
               <li><button id="menu-berita" class="active font-bold" onclick="gantiTab('berita')">📰 Berita & Informasi</button></li>
+              <li><button id="menu-jadwal" onclick="gantiTab('jadwal')">📍 Tempat & Jadwal Latihan</button></li>
+              
               <span id="protected-menus" class="hidden space-y-1 mt-1 flex flex-col">
                 <li><button id="menu-materi" onclick="gantiTab('materi')">🥋 Materi Kurikulum</button></li>
                 <li><button id="menu-absensi" onclick="gantiTab('absensi')">📅 Presensi & Jurnal</button></li>
                 <li><button id="menu-ukt" onclick="gantiTab('ukt')">🏆 Ujian Tingkat (UKT)</button></li>
-                <li><button id="menu-surat" onclick="gantiTab('surat')">📁 Arsip Sekretariat</button></li>
-                <li><button id="menu-keuangan" onclick="gantiTab('keuangan')">💰 Kas & Keuangan</button></li>
                 <li><button id="menu-anggota" class="text-error font-bold hidden" onclick="gantiTab('anggota')">👥 Manajemen Anggota</button></li>
               </span>
             </ul>
           </div>
-          
-          <details class="collapse collapse-arrow bg-base-100 shadow-xl rounded-2xl">
-            <summary class="collapse-title text-xs font-bold uppercase opacity-70">⚙️ Opsi Pencarian & Filter</summary>
-            <div class="collapse-content space-y-3 pt-0">
-              <div class="form-control"><input type="text" id="global-search" oninput="prosesEngineData()" placeholder="Cari..." class="input input-bordered input-sm w-full" /></div>
-              <div class="form-control"><select id="global-sort" onchange="prosesEngineData()" class="select select-bordered select-sm w-full"><option value="terbaru">Terbaru</option><option value="terlama">Terlama</option></select></div>
-              <div class="form-control"><select id="global-page-size" onchange="resetKeHalamanSatu()" class="select select-bordered select-sm w-full"><option value="3">3 Baris</option><option value="5" selected>5 Baris</option><option value="10">10 Baris</option></select></div>
-              <div class="flex justify-between items-center pt-2 border-t text-xs font-bold">
-                <button class="btn btn-xs btn-outline" onclick="halamanSebelumnya()">◀</button>
-                <span>Hal: <span id="current-page-text" class="text-error">1/1</span></span>
-                <button class="btn btn-xs btn-outline" onclick="halamanBerikutnya()">▶</button>
-              </div>
-            </div>
-          </details>
         </div>
 
         <div class="lg:col-span-3">
@@ -104,58 +65,51 @@
             <div id="global-loader" class="text-center py-10 hidden"><span class="loading loading-spinner loading-lg text-error"></span></div>
 
             <div id="view-berita" class="tab-view hidden space-y-4">
-              <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">📰 Berita Utama & Kegiatan</h2></div>
+              <div class="flex justify-between items-center border-b pb-3">
+                <h2 class="text-xl font-bold">📰 Berita Utama & Informasi</h2>
+                <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormBerita()">+ Buat Berita</button>
+              </div>
+              <div id="form-berita-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
+                <input type="hidden" id="berita-row-num">
+                <input type="text" id="berita-judul" placeholder="Judul Berita" class="input input-bordered input-sm w-full">
+                <textarea id="berita-isi" placeholder="Isi berita..." class="textarea textarea-bordered textarea-sm w-full h-24"></textarea>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <select id="berita-kat" class="select select-bordered select-sm"><option value="Pengumuman">Pengumuman</option><option value="Kegiatan">Kegiatan</option></select>
+                  <select id="berita-status" class="select select-bordered select-sm"><option value="Publish">Publish</option><option value="Draft">Draft</option></select>
+                  <input type="text" id="berita-foto-url" placeholder="Link Gambar Drive" class="input input-bordered input-sm">
+                </div>
+                <div class="flex justify-end gap-2"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-berita-block').classList.add('hidden')">Batal</button><button class="btn btn-sm btn-error text-white" onclick="simpanBeritaWeb()">Terbitkan</button></div>
+              </div>
               <div id="list-berita-render" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
-            <div id="view-materi" class="tab-view hidden space-y-4">
-              <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">🥋 Kurikulum Latihan</h2></div>
-              <div id="list-materi-render" class="space-y-2"></div>
+            <div id="view-jadwal" class="tab-view hidden space-y-4">
+              <div class="flex justify-between items-center border-b pb-3">
+                <h2 class="text-xl font-bold">📍 Tempat & Jadwal Latihan Resmi</h2>
+                <button class="btn btn-sm btn-neutral opsi-admin hidden" onclick="bukaFormJadwal()">+ Tambah Lokasi</button>
+              </div>
+              <div id="form-jadwal-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
+                <input type="hidden" id="jadwal-row-num">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <input type="text" id="jdw-tempat" placeholder="Nama Tempat/Ranting" class="input input-bordered input-sm">
+                  <input type="text" id="jdw-hari" placeholder="Hari (Contoh: Senin, Rabu)" class="input input-bordered input-sm">
+                  <input type="text" id="jdw-jam" placeholder="Jam Latihan (Contoh: 16:00 - Selesai)" class="input input-bordered input-sm">
+                  <input type="text" id="jdw-pic" placeholder="Nama PIC Pelatih" class="input input-bordered input-sm">
+                  <input type="text" id="jdw-kontak" placeholder="No WA PIC" class="input input-bordered input-sm">
+                  <input type="text" id="jdw-koordinat" placeholder="Koordinat: -7.123,111.456" class="input input-bordered input-sm">
+                </div>
+                <button class="btn btn-neutral btn-sm w-full" onclick="simpanJadwalWeb()">Simpan Jadwal</button>
+              </div>
+              <div class="overflow-x-auto"><table class="table table-zebra table-sm w-full">
+                <thead><tr class="bg-neutral text-white"><th>Tempat Ranting</th><th>Hari / Jam</th><th>PIC Pelatih</th><th>Kontak PIC</th><th>Peta</th><th class="opsi-admin hidden">Aksi</th></tr></thead>
+                <tbody id="list-jadwal-render"></tbody>
+              </table></div>
             </div>
 
-            <div id="view-absensi" class="tab-view hidden space-y-4">
-              <h2 class="text-xl font-bold border-b pb-3">📅 Presensi & Jurnal Kelompok</h2>
-              <button class="btn btn-error btn-block text-white py-3 font-bold h-auto shadow" onclick="hadirLatihan()">🔴 ABSEN MANDIRI</button>
-              <div id="panel-pelatih-absen" class="bg-base-200 p-4 rounded-xl space-y-3 opsi-admin hidden border"><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><select id="absen-pelatih-ranting" class="select select-bordered select-sm w-full" onchange="filterPilihanMuridCheck()"></select><input type="text" id="absen-pelatih-foto" placeholder="Link Foto Latihan" class="input input-bordered input-sm w-full"></div><textarea id="absen-pelatih-materi" placeholder="Materi hari ini..." class="textarea textarea-bordered textarea-sm w-full h-16"></textarea><div id="wrapper-checkbox-murid" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto bg-base-100 p-3 rounded border"></div><button class="btn btn-sm btn-neutral btn-block" onclick="simpanAbsenMassalPelatih()">Simpan Presensi Massal</button></div>
-              <div class="overflow-x-auto"><table class="table table-zebra table-sm"><thead><tr class="bg-base-300"><th>Tanggal Log</th><th>Nama Murid</th><th>Ranting</th><th>Materi Terlatih</th><th>Foto</th><th>Aksi</th></tr></thead><tbody id="list-absen-render"></tbody></table></div>
-            </div>
-
-            <div id="view-ukt" class="tab-view hidden space-y-6">
-              <div class="tabs tabs-boxed bg-base-200 p-1 flex gap-1">
-                <button id="sub-tab-peserta" class="tab tab-active font-bold text-xs" onclick="gantiSubTabUKT('peserta')">🏅 Cetak Ijazah Resmi</button>
-                <button id="sub-tab-massal" class="tab font-bold text-xs opsi-admin hidden" onclick="gantiSubTabUKT('massal')">📝 Penilaian Kolektif Pos</button>
-                <button id="sub-tab-kriteria" class="tab font-bold text-xs opsi-admin hidden" onclick="gantiSubTabUKT('kriteria')">⚙️ Parameter Kriteria</button>
-              </div>
-
-              <div id="sub-view-peserta" class="space-y-4">
-                <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm opacity-70">Daftar Pengajuan UKT</h3><button class="btn btn-sm btn-neutral text-xs" onclick="ajukanUKT()">Daftar UKT Baru</button></div>
-                <div class="overflow-x-auto"><table class="table table-sm w-full"><thead><tr class="bg-base-300"><th>ID</th><th>Nama Anggota</th><th>Target Sabuk</th><th>Status Kelulusan</th><th>Opsi</th></tr></thead><tbody id="list-ukt-render"></tbody></table></div>
-              </div>
-
-              <div id="sub-view-massal" class="space-y-4 hidden">
-                <div class="bg-base-200 p-4 rounded-xl border space-y-3"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="label-text font-bold text-xs">Pilih Tingkatan Sabuk Target Ujian</label><select id="massal-select-sabuk" class="select select-bordered select-sm w-full" onchange="sinkronisasiPilihanMateriMassal()"></select></div><div><label class="label-text font-bold text-xs">Pilih Pos Materi Ujian</label><select id="massal-select-materi" class="select select-bordered select-sm w-full" onchange="renderFormTabelMassalMurid()"></select></div></div></div>
-                <div id="wrapper-tabel-massal-input" class="hidden space-y-3"><div class="overflow-x-auto"><table class="table table-sm w-full bg-base-100 border rounded-xl overflow-hidden"><thead><tr id="massal-thead-row" class="bg-neutral text-white text-xs"></tr></thead><tbody id="massal-tbody-murid"></tbody></table></div><button class="btn btn-error btn-block text-white font-bold" onclick="commitNilaiMassalKeDatabase()">Simpan Seluruh Nilai Pos</button></div>
-              </div>
-
-              <div id="sub-view-kriteria" class="space-y-4 hidden">
-                <div id="form-materi-ukt-block" class="bg-base-200 p-4 rounded-xl space-y-2"><div class="grid grid-cols-1 md:grid-cols-2 gap-2"><select id="materiukt-tingkatan" class="select select-bordered select-sm"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option><option value="Terampil 1">Terampil 1</option></select><input type="text" id="materiukt-kriteria" placeholder="Kriteria: Fisik(Push Up+Lari),Kerapian" class="input input-bordered input-sm"></div><button class="btn btn-sm btn-neutral w-full" onclick="simpanKriteriaMateriUKTAdmin()">Simpan Kriteria</button></div>
-                <table class="table table-sm"><thead><tr class="bg-base-300"><th>Sabuk</th><th>Komponen Penilaian</th><th>Hapus</th></tr></thead><tbody id="list-materi-ukt-render"></tbody></table>
-              </div>
-            </div>
-
-            <div id="view-surat" class="tab-view hidden space-y-4"><table class="table table-sm"><thead><tr class="bg-base-300"><th>Nomor</th><th>Judul</th><th>Kategori</th><th>Link</th></tr></thead><tbody id="list-surat-render"></tbody></table></div>
-            
-            <div id="view-keuangan" class="tab-view hidden space-y-4"><table class="table table-sm"><thead><tr class="bg-base-300"><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Nominal</th></tr></thead><tbody id="list-keuangan-render"></tbody></table></div>
-
-            <div id="view-anggota" class="tab-view hidden space-y-4">
-              <div id="form-anggota-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
-                <input type="hidden" id="anggota-row-num">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2"><input type="text" id="agt-nama" class="input input-bordered input-sm"><input type="email" id="agt-email" class="input input-bordered input-sm"><input type="text" id="agt-pass" class="input input-bordered input-sm"><select id="agt-role" class="select select-bordered select-sm"><option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option><option value="Admin Cabang">Admin Cabang</option></select><input type="text" id="agt-ranting" class="input input-bordered input-sm"><select id="agt-tingkatan" class="select select-bordered select-sm"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option></select></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2"><input type="text" id="agt-ttl" placeholder="Tempat, Tanggal Lahir (Contoh: Bojonegoro, 12 Agustus 2000)" class="input input-bordered input-sm"><input type="text" id="agt-foto-url" placeholder="Link Gambar Drive Profil" class="input input-bordered input-sm"></div>
-                <button class="btn btn-sm btn-error text-white mt-1" onclick="simpanAnggotaAdminWeb()">Simpan Perubahan Anggota</button>
-              </div>
-              <div class="overflow-x-auto"><table class="table table-sm align-middle"><thead><tr class="bg-neutral text-white"><th>Foto</th><th>Nama / TTL</th><th>Email</th><th>Role</th><th>Ranting</th><th>Sabuk</th><th>Aksi</th></tr></thead><tbody id="list-anggota-render"></tbody></table></div>
-            </div>
+            <div id="view-materi" class="tab-view hidden space-y-2"><div id="list-materi-render"></div></div>
+            <div id="view-absensi" class="tab-view hidden space-y-2"><div id="panel-pelatih-absen" class="hidden"></div><table class="table table-sm"><tbody id="list-absen-render"></tbody></table></div>
+            <div id="view-ukt" class="tab-view hidden space-y-2"><div class="tabs"></div><tbody id="list-ukt-render"></tbody><tbody id="massal-tbody-murid"></tbody></div>
+            <div id="view-anggota" class="tab-view hidden space-y-2"><tbody id="list-anggota-render"></tbody></div>
 
           </div>
         </div>
@@ -163,379 +117,12 @@
     </div>
   </div>
 
-  <dialog id="modalIjazah" class="modal">
-    <div class="modal-box max-w-2xl bg-white text-black p-0 rounded-none border-[12px] border-double border-amber-600">
-      <div id="ijazah-print-area" class="bg-amber-50">
-        
-        <div class="p-10 text-center space-y-5 min-h-[285mm] flex flex-col justify-between">
-          <div>
-            <h1 class="text-2xl font-serif font-bold tracking-widest text-amber-900 uppercase">Keluarga Silat Nasional Indonesia<br>PERISAI DIRI</h1>
-            <p class="text-xs font-bold tracking-widest italic text-gray-600 border-b border-amber-700 pb-2 max-w-sm mx-auto">SURAT TANDA KELULUSAN UJIAN TINGKAT</p>
-            <p class="text-sm mt-5 font-serif">Pengurus PB Kelatnas Indonesia Perisai Diri menyatakan bahwa:</p>
-            <h2 id="p-ijazah-nama" class="text-3xl font-serif font-bold underline text-neutral-800 tracking-wide my-1"></h2>
-            
-            <p class="text-xs font-serif opacity-80 mb-2">Tempat, Tanggal Lahir: <span id="p-ijazah-ttl" class="font-bold"></span></p>
-            
-            <p class="text-sm font-serif">Asal Ranting / Unit Latihan: <b id="p-ijazah-ranting"></b></p>
-            <p class="text-xs font-serif max-w-md mx-auto mt-4">Dinyatakan telah menempuh seluruh materi pengujian kompetensi jasmani dan akademik secara sah, serta dinyatakan **LULUS** berhak menyandang tingkatan sabuk:</p>
-            <div class="my-3"><span id="p-ijazah-sabuk" class="text-lg font-black px-6 py-2 border-2 border-amber-900 bg-amber-100 text-amber-950 uppercase tracking-widest"></span></div>
-          </div>
-          
-          <div class="flex justify-between items-end max-w-xl mx-auto w-full pt-6">
-            <div class="text-center">
-              <img id="p-ijazah-foto" src="" class="w-24 h-32 object-cover border-2 border-amber-900 shadow bg-gray-300 rounded">
-              <p class="text-[8px] font-sans opacity-40 mt-1 uppercase tracking-wider">Foto Anggota</p>
-            </div>
-            
-            <div class="text-center bg-white p-2 border border-amber-300 shadow-sm rounded">
-              <img id="p-ijazah-qr" src="" class="w-20 h-20" />
-              <p class="text-[7px] font-sans opacity-40 mt-1">Cek Keaslian</p>
-            </div>
-            <div class="text-center font-serif text-xs w-40 border-t border-amber-900 pt-1">
-              <p class="font-bold">Dewan Pendekar Pelatih</p>
-              <p class="text-[10px] opacity-40 mt-1">Ditetapkan: <span id="p-ijazah-tgl"></span></p>
-            </div>
-          </div>
-        </div>
+  <dialog id="modalAuth" class="modal"><div class="modal-box max-w-sm"><div id="block-login-form" class="space-y-3"><h3 class="font-bold text-center text-error">Masuk Portal</h3><input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full"><button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button></div></div></dialog>
 
-        <div style="page-break-before: always;"></div>
-
-        <div class="p-12 min-h-[297mm] bg-white text-black font-sans flex flex-col justify-between">
-          <div>
-            <div class="text-center border-b-2 border-gray-800 pb-2 mb-4">
-              <h3 class="text-base font-bold tracking-wider uppercase text-neutral-800">LEMBAR HASIL NILAI EVALUASI UJIAN TINGKAT</h3>
-              <p class="text-[10px] opacity-60">Kelatnas Indonesia Perisai Diri</p>
-            </div>
-            <div class="grid grid-cols-2 text-xs gap-y-2 mb-6 bg-base-100 p-3 rounded-lg border">
-              <div>Nama Anggota: <b id="p-transkrip-nama"></b></div>
-              <div>ID Registrasi: <b id="p-transkrip-id"></b></div>
-              <div>Tingkat Ujian: <b id="p-transkrip-sabuk"></b></div>
-              <div>Unit/Ranting: <b id="p-transkrip-ranting"></b></div>
-              <div class="col-span-2">Tempat, Tanggal Lahir: <b id="p-transkrip-ttl"></b></div>
-            </div>
-            <table class="table table-sm border w-full text-xs">
-              <thead><tr class="bg-gray-100 text-black border-b font-bold"><th>Materi Kompetensi Pokok</th><th>Rincian Parameter Sub-Komponen</th><th class="text-center">Nilai Akhir Pos</th></tr></thead>
-              <tbody id="p-transkrip-list-body"></tbody>
-            </table>
-          </div>
-          <div class="flex justify-between items-center pt-6 text-[10px] border-t opacity-40">
-            <p>Sertifikat Elektronik terverifikasi QR-Code Sistem</p>
-            <p>Lembar Transkrip Nilai Sah Halaman 2</p>
-          </div>
-        </div>
-
-      </div>
-      <div class="bg-base-200 p-3 flex justify-end gap-2"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('modalIjazah').close()">Batal</button><button class="btn btn-sm btn-warning font-bold" onclick="window.print()">🖨️ Cetak Dokumen</button></div>
-    </div>
-  </dialog>
-
-  <dialog id="modalAuth" class="modal"><div class="modal-box max-w-sm"><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form><div id="block-login-form" class="space-y-3"><h3 class="font-bold text-lg text-center text-error">Masuk Portal</h3><input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full"><button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button><p class="text-center text-xs mt-2">Anggota baru? <a class="link link-error font-bold" onclick="pindahKeFormRegistrasi()">Daftar Account</a></p></div><div id="block-register-form" class="space-y-2 hidden"><h3 class="font-bold text-lg text-center text-success">Form Pendaftaran</h3><input type="text" id="reg-nama" placeholder="Nama Lengkap" class="input input-bordered input-sm w-full"><input type="text" id="reg-ttl" placeholder="Tempat, Tanggal Lahir" class="input input-bordered input-sm w-full"><input type="email" id="reg-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="reg-pass" placeholder="Password" class="input input-bordered input-sm w-full"><input type="text" id="reg-ranting" placeholder="Ranting" class="input input-bordered input-sm w-full"><select id="reg-tingkatan" class="select select-bordered select-sm w-full"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option></select><input type="text" id="reg-foto-url" placeholder="Link Foto Profil Drive" class="input input-bordered input-sm w-full"><button class="btn btn-success btn-sm btn-block text-white mt-2" onclick="submitRegistrasiLuar()">Daftar</button><p class="text-center text-xs mt-2"><a class="link link-neutral" onclick="pindahKeFormLogin()">Kembali</a></p></div></div></dialog>
-
-  <script>
-    // URL MAKRO GOOGLE APPS SCRIPT ANDA SEKARANG SUDAH AKTIF DAN TERKONEKSI SEMPURNA
-    const API_URL = "https://script.google.com/macros/s/AKfycbzs9Bo3lEWZ9yUvAy9EplTxemgUKQxPj0-XHHLjmafr-ViS7kOH5dj_yxjBwm6DeOKxww/exec";
-    
-    var currentTab = "berita"; var currentSubTabUKT = "peserta"; var userAktif = null;
-    var rawDataStorage = { berita: [], materi: [], absensi: [], ukt: [], surat: [], keuangan: [], anggota: [], materiUkt: [] };
-    var currentPage = 1;
-
-    window.onload = function() {
-      var urlParams = new URLSearchParams(window.location.search);
-      if(urlParams.has('verify')) {
-        var idUkt = urlParams.get('verify');
-        document.getElementById('core-application-wrapper').classList.add('hidden');
-        document.getElementById('public-verification-layer').classList.remove('hidden');
-        
-        fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'verifikasiIjazahPublik', idUkt: idUkt }) })
-        .then(res => res.json()).then(res => {
-          if(res.ditemukan) {
-            document.getElementById('v-id').innerText = res.id; document.getElementById('v-nama').innerText = res.nama;
-            document.getElementById('v-ranting').innerText = res.ranting; document.getElementById('v-sabuk').innerText = res.tingkatan;
-            document.getElementById('v-tgl').innerText = res.tanggal; document.getElementById('v-ttl').innerText = res.ttl;
-            if(res.foto) document.getElementById('v-foto').src = bersihLinkDrive(res.foto);
-            
-            var listNilaiBody = document.getElementById('v-list-nilai-body'); listNilaiBody.innerHTML = '';
-            var parseScores = JSON.parse(res.nilaiDetail || "{}");
-            for(var key in parseScores){
-              var subStr = []; if(parseScores[key].sub) { for(var subK in parseScores[key].sub) { subStr.push(subK + ": " + parseScores[key].sub[subK]); } }
-              listNilaiBody.innerHTML += `<tr><td><b>${key}</b></td><td class="opacity-70">${subStr.join(", ") || "-"}</td><td class="font-bold text-center text-error">${parseScores[key].total || 0}</td></tr>`;
-            }
-          } else {
-            document.getElementById('public-verification-layer').innerHTML = `<div class="alert alert-error text-xs font-bold shadow">Sertifikat ID tidak valid atau palsu!</div>`;
-          }
-        });
-        return;
-      }
-      initLoadPublicData();
-    };
-
-    function bukaModalAuth() { document.getElementById('block-login-form').classList.remove('hidden'); document.getElementById('block-register-form').classList.add('hidden'); document.getElementById('modalAuth').showModal(); }
-    function pindahKeFormRegistrasi() { document.getElementById('block-login-form').classList.add('hidden'); document.getElementById('block-register-form').classList.remove('hidden'); }
-    function pindahKeFormLogin() { document.getElementById('block-login-form').classList.remove('hidden'); document.getElementById('block-register-form').classList.add('hidden'); }
-    function logoutApp() { location.reload(); }
-
-    function bersihLinkDrive(url) {
-      if (!url || url === "" || typeof url !== 'string') return "";
-      if (url.includes("drive.google.com")) {
-        var fileId = "";
-        if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; } 
-        else if (url.includes("/d/")) { fileId = url.split("/d/")[1].split("/")[0]; }
-        if (fileId !== "") { return "https://lh3.googleusercontent.com/d/" + fileId; }
-      }
-      return url;
-    }
-
-    function callAPI(payload, successCallback) {
-      document.getElementById('global-loader').classList.remove('hidden');
-      fetch(API_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payload) })
-      .then(res => res.json()).then(res => { document.getElementById('global-loader').classList.add('hidden'); successCallback(res); });
-    }
-
-    function initLoadPublicData() { callAPI({ action: 'getBerita' }, function(data) { rawDataStorage.berita = data; gantiTab('berita'); }); }
-    
-    function loadDataTerproteksi() {
-      if(!userAktif) return;
-      callAPI({ action: 'fetchProtectedData', email: userAktif.email, role: userAktif.role }, function(res) {
-        rawDataStorage.berita = res.berita || []; rawDataStorage.materi = res.materi || []; rawDataStorage.absensi = res.absensi || [];
-        rawDataStorage.ukt = res.ukt || []; rawDataStorage.surat = res.surat || []; rawDataStorage.keuangan = res.keuangan || [];
-        rawDataStorage.materiUkt = res.materiUkt || [];
-        document.getElementById('txt-saldo').innerText = "Rp. " + (res.saldo || 0).toLocaleString('id-ID');
-        if(userAktif.role.includes("Admin")) { rawDataStorage.anggota = res.anggota || []; setupPanelAbsensiPelatihControl(); setupDropdownMassalSabukUKT(); }
-        prosesEngineData();
-      });
-    }
-
-    function setupPanelAbsensiPelatihControl() {
-      var rantingSelect = document.getElementById('absen-pelatih-ranting'); rantingSelect.innerHTML = '';
-      var listRantingUnik = [...new Set(rawDataStorage.anggota.map(x => x.ranting))].filter(Boolean);
-      listRantingUnik.forEach(r => { var opt = document.createElement('option'); opt.value = r; opt.innerText = r; rantingSelect.appendChild(opt); });
-      if(userAktif.role === "Admin Ranting") { rantingSelect.value = userAktif.ranting; rantingSelect.disabled = true; }
-      filterPilihanMuridCheck();
-    }
-
-    function filterPilihanMuridCheck() {
-      var targetRanting = document.getElementById('absen-pelatih-ranting').value;
-      var wrapper = document.getElementById('wrapper-checkbox-murid'); wrapper.innerHTML = '';
-      var muridFiltered = rawDataStorage.anggota.filter(x => x.ranting === targetRanting);
-      if(muridFiltered.length === 0) { wrapper.innerHTML = '<span class="text-xs opacity-40 p-2">Kosong.</span>'; return; }
-      muridFiltered.forEach(m => {
-        wrapper.innerHTML += `<label class="flex items-center gap-2 bg-base-200 p-1.5 rounded cursor-pointer hover:bg-base-300 text-xs"><input type="checkbox" name="chk-murid-hadir" value="${m.email}" data-nama="${m.nama}" class="checkbox checkbox-xs checkbox-error"><span>${m.nama} (${m.tingkatan})</span></label>`;
-      });
-    }
-
-    function simpanAbsenMassalPelatih() {
-      var checkboxes = document.querySelectorAll('input[name="chk-murid-hadir"]:checked'); var listHadir = [];
-      checkboxes.forEach(cb => { listHadir.push({ email: cb.value, nama: cb.getAttribute('data-nama') }); });
-      var rData = { ranting: document.getElementById('absen-pelatih-ranting').value, fotoLatihan: bersihLinkDrive(document.getElementById('absen-pelatih-foto').value), materi: document.getElementById('absen-pelatih-materi').value, muridHadir: listHadir };
-      if(listHadir.length === 0 || !rData.materi) return;
-      callAPI({ action: 'absenKolektifPelatih', email: userAktif.email, data: rData }, function(msg) { alert(msg); loadDataTerproteksi(); });
-    }
-
-    function setupDropdownMassalSabukUKT() {
-      var selectSabuk = document.getElementById('massal-select-sabuk'); selectSabuk.innerHTML = '<option value="">-- Pilih Sabuk --</option>';
-      var tingkatanUnik = [...new Set(rawDataStorage.materiUkt.map(x => x.tingkatan))];
-      tingkatanUnik.forEach(t => { selectSabuk.innerHTML += `<option value="${t}">${t}</option>`; });
-    }
-
-    function sinkronisasiPilihanMateriMassal() {
-      var sabukTerpilih = document.getElementById('massal-select-sabuk').value;
-      var selectMateri = document.getElementById('massal-select-materi'); selectMateri.innerHTML = '<option value="">-- Pilih Pos Materi --</option>';
-      document.getElementById('wrapper-tabel-massal-input').classList.add('hidden');
-      var matchMateri = rawDataStorage.materiUkt.find(x => x.tingkatan === sabukTerpilih); if(!matchMateri) return;
-      var rawKriteriaList = matchMateri.kriteria.split(",");
-      rawKriteriaList.forEach(k => {
-        var namaMateriMurni = k.includes("(") ? k.split("(")[0] : k;
-        selectMateri.innerHTML += `<option value="${k}">${namaMateriMurni}</option>`;
-      });
-    }
-
-    function renderFormTabelMassalMurid() {
-      var sabuk = document.getElementById('massal-select-sabuk').value;
-      var rawKriteriaString = document.getElementById('massal-select-materi').value;
-      if(!rawKriteriaString || !sabuk) { document.getElementById('wrapper-tabel-massal-input').classList.add('hidden'); return; }
-      var thead = document.getElementById('massal-thead-row'); thead.innerHTML = '<th>Nama Murid</th>';
-      var subKomponen = [];
-      if(rawKriteriaString.includes("(")) {
-        var isiDalamKurung = rawKriteriaString.split("(")[1].replace(")", ""); subKomponen = isiDalamKurung.split("+");
-        subKomponen.forEach(sub => { thead.innerHTML += `<th class="text-center">${sub}</th>`; });
-      } else { thead.innerHTML += `<th class="text-center">Nilai Angka</th>`; }
-      thead.innerHTML += `<th class="text-center">Total Akumulasi</th><th class="text-center">Set Status Lulus Akhir Sabuk</th>`;
-      
-      var tbody = document.getElementById('massal-tbody-murid'); tbody.innerHTML = '';
-      var pesertaFiltered = rawDataStorage.ukt.filter(x => x.tingkatan === sabuk && x.status === "Proses");
-      if(pesertaFiltered.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-center opacity-40">Tidak ada murid di pos ini.</td></tr>'; document.getElementById('wrapper-tabel-massal-input').classList.remove('hidden'); return; }
-      
-      pesertaFiltered.forEach(p => {
-        var currentJsonNilai = {}; try { currentJsonNilai = JSON.parse(p.nilaiDetail || "{}"); } catch(e){}
-        var namaMateriMurni = rawKriteriaString.includes("(") ? rawKriteriaString.split("(")[0] : rawKriteriaString;
-        var tr = document.createElement('tr'); tr.className = "text-xs class-row-peserta-massal"; tr.setAttribute('data-rownum', p.rowNum);
-        var tdNama = `<td><b>${p.nama}</b></td>`; var tdInputs = '';
-        if(subKomponen.length > 0) {
-          subKomponen.forEach(sub => {
-            var valLama = (currentJsonNilai[namaMateriMurni] && currentJsonNilai[namaMateriMurni].sub) ? (currentJsonNilai[namaMateriMurni].sub[sub] || "") : "";
-            tdInputs += `<td><input type="number" placeholder="0" value="${valLama}" data-subname="${sub}" class="input input-bordered input-xs w-20 text-center font-bold class-input-subnilai" oninput="hitungAkumulasiMassalRowRealtime(this)"></td>`;
-          });
-        } else {
-          var valLamaTotal = currentJsonNilai[namaMateriMurni] ? (currentJsonNilai[namaMateriMurni].total || "") : "";
-          tdInputs += `<td><input type="number" placeholder="0" value="${valLamaTotal}" class="input input-bordered input-xs w-24 text-center font-bold class-input-subnilai" oninput="hitungAkumulasiMassalRowRealtime(this)"></td>`;
-        }
-        var totalAwal = currentJsonNilai[namaMateriMurni] ? (currentJsonNilai[namaMateriMurni].total || 0) : 0;
-        var tdTotal = `<td class="text-center font-black text-error class-output-total-akumulasi">${totalAwal}</td>`;
-        var tdKeputusan = `<td><select class="select select-bordered select-xs w-full class-select-status-keputusan"><option value="">-- Tetap Proses --</option><option value="Lulus">Lulus Akhir Sabuk</option><option value="Gagal">Gagal</option></select></td>`;
-        tr.innerHTML = tdNama + tdInputs + tdTotal + tdKeputusan; tbody.appendChild(tr);
-      });
-      document.getElementById('wrapper-tabel-massal-input').classList.remove('hidden');
-    }
-
-    function hitungAkumulasiMassalRowRealtime(inputElement) {
-      var row = inputElement.closest('tr'); var allInputsInRow = row.querySelectorAll('.class-input-subnilai');
-      var totalSum = 0; var count = 0;
-      allInputsInRow.forEach(inp => { totalSum += parseFloat(inp.value || 0); count++; });
-      row.querySelector('.class-output-total-akumulasi').innerText = count > 0 ? Math.round(totalSum / count) : 0;
-    }
-
-    function commitNilaiMassalKeDatabase() {
-      var rawKriteriaString = document.getElementById('massal-select-materi').value;
-      var namaMateriMurni = rawKriteriaString.includes("(") ? rawKriteriaString.split("(")[0] : rawKriteriaString;
-      var rows = document.querySelectorAll('#massal-tbody-murid .class-row-peserta-massal'); var listNilaiMurid = [];
-      rows.forEach(r => {
-        var rowNum = r.getAttribute('data-rownum'); var subInputs = r.querySelectorAll('.class-input-subnilai'); var subNilaiObj = {};
-        subInputs.forEach(inp => { var subName = inp.getAttribute('data-subname'); if(subName) subNilaiObj[subName] = parseFloat(inp.value || 0); });
-        listNilaiMurid.push({ rowNum: rowNum, subNilai: subNilaiObj, totalMateriValue: parseFloat(r.querySelector('.class-output-total-akumulasi').innerText || 0), statusKeputusan: r.querySelector('.class-select-status-keputusan').value || null });
-      });
-      callAPI({ action: 'simpanPenilaianUKTMassal', email: userAktif.email, data: { materiNama: namaMateriMurni, listNilaiMurid: listNilaiMurid } }, function(msg) { alert(msg); loadDataTerproteksi(); });
-    }
-
-    function gantiTab(tabName) {
-      currentTab = tabName; currentPage = 1;
-      document.querySelectorAll('#main-menu-tabs button').forEach(b => b.classList.remove('active', 'font-bold'));
-      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-      if(document.getElementById('menu-' + tabName)) document.getElementById('menu-' + tabName).classList.add('active', 'font-bold');
-      if(document.getElementById('view-' + tabName)) document.getElementById('view-' + tabName).classList.remove('hidden');
-      prosesEngineData();
-    }
-
-    function gantiSubTabUKT(subName) {
-      currentSubTabUKT = subName; document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('tab-active'));
-      document.getElementById('sub-tab-' + subName).classList.add('tab-active');
-      document.getElementById('sub-view-peserta').classList.add('hidden'); document.getElementById('sub-view-massal').classList.add('hidden'); document.getElementById('sub-view-kriteria').classList.add('hidden');
-      document.getElementById('sub-view-' + subName).classList.remove('hidden'); prosesEngineData();
-    }
-
-    function prosesEngineData() {
-      var query = document.getElementById('global-search').value.toLowerCase(); var sortType = document.getElementById('global-sort').value; var pageSize = parseInt(document.getElementById('global-page-size').value); var dataTarget = rawDataStorage[currentTab] || [];
-      var filteredData = dataTarget.filter(item => { if (!item) return false; return JSON.stringify(item).toLowerCase().includes(query); });
-      if (sortType === "terbaru") { filteredData.sort((a, b) => (b.rowNum || 0) - (a.rowNum || 0)); } else { filteredData.sort((a, b) => (a.rowNum || 0) - (b.rowNum || 0)); }
-      var maxPage = Math.ceil(filteredData.length / pageSize) || 1; document.getElementById('current-page-text').innerText = currentPage + " / " + maxPage;
-      renderDataVisual(filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-    }
-
-    function resetKeHalamanSatu() { currentPage = 1; prosesEngineData(); }
-    function halamanSebelumnya() { if (currentPage > 1) { currentPage--; prosesEngineData(); } }
-    function halamanBerikutnya() { var pageSize = parseInt(document.getElementById('global-page-size').value); if (currentPage < Math.ceil((rawDataStorage[currentTab] || []).length / pageSize)) { currentPage++; prosesEngineData(); } }
-
-    function renderDataVisual(data) {
-      var isAdmin = (userAktif && userAktif.role.includes("Admin"));
-      if (currentTab === 'berita') {
-        var container = document.getElementById('list-berita-render'); container.innerHTML = '';
-        data.forEach(b => { container.innerHTML += `<div class="card bg-base-100 border p-4"><h2 class="font-bold text-sm">${b.judul}</h2><p class="text-xs text-gray-500">${b.isi}</p></div>`; });
-      }
-      else if (currentTab === 'absensi') {
-        var tbody = document.getElementById('list-absen-render'); tbody.innerHTML = '';
-        data.forEach(r => { tbody.innerHTML += `<tr class="text-xs"><td>${r.tanggal}</td><td><b>${r.nama}</b></td><td>${r.ranting}</td><td>${r.materi}</td><td>${r.fotoLatihan?'Ada':'-'}</td><td>-</td></tr>`; });
-      }
-      else if (currentTab === 'ukt') {
-        if(currentSubTabUKT === "peserta") {
-          var tbody = document.getElementById('list-ukt-render'); tbody.innerHTML = '';
-          data.forEach(r => {
-            var btnAksi = r.status === "Lulus" ? `<button class="btn btn-xs btn-warning font-bold" onclick="pemicuCetakIjazah('${r.id}','${r.nama}','${r.tingkatan}','${r.tanggal}')">🖨️ Cetak Ijazah</button>` : `<span class="badge badge-sm">${r.status}</span>`;
-            tbody.innerHTML += `<tr class="text-xs"><td>${r.id}</td><td><b>${r.nama}</b></td><td>${r.tingkatan}</td><td>${r.status}</td><td>${btnAksi}</td></tr>`;
-          });
-        }
-      }
-      else if (currentTab === 'anggota') {
-        var tbody = document.getElementById('list-anggota-render'); tbody.innerHTML = '';
-        data.forEach(r => {
-          var picClean = bersihLinkDrive(r.foto);
-          var img = picClean ? `<img src="${picClean}" class="w-8 h-8 rounded-full object-cover">` : '<div class="w-8 h-8 bg-gray-300 rounded-full text-center"></div>';
-          tbody.innerHTML += `<tr class="text-xs"><td>${img}</td><td><b>${r.nama}</b><br><span class="opacity-50 text-[10px]">${r.ttl||'-'}</span></td><td>${r.email}</td><td>${r.role}</td><td>${r.ranting}</td><td>${r.tingkatan}</td><td><button class="btn btn-xs btn-outline" onclick="editAnggotaByRow(${r.rowNum})">Edit</button></td></tr>`;
-        });
-      }
-    }
-
-    function pemicuCetakIjazah(idUkt, nama, sabuk, tanggalLulus) {
-      var targetUktRow = rawDataStorage.ukt.find(x => x.id === idUkt);
-      if(!targetUktRow) return;
-
-      document.getElementById('p-ijazah-nama').innerText = nama; 
-      document.getElementById('p-ijazah-sabuk').innerText = sabuk; 
-      document.getElementById('p-ijazah-tgl').innerText = tanggalLulus;
-      document.getElementById('p-ijazah-ranting').innerText = targetUktRow.ranting;
-      
-      document.getElementById('p-ijazah-ttl').innerText = targetUktRow.ttl || "-";
-      document.getElementById('p-transkrip-ttl').innerText = targetUktRow.ttl || "-";
-      document.getElementById('p-ijazah-foto').src = targetUktRow.foto ? bersihLinkDrive(targetUktRow.foto) : "https://via.placeholder.com/120x160?text=Foto+3x4";
-
-      document.getElementById('p-transkrip-nama').innerText = nama; 
-      document.getElementById('p-transkrip-id').innerText = idUkt;
-      document.getElementById('p-transkrip-sabuk').innerText = sabuk;
-      document.getElementById('p-transkrip-ranting').innerText = targetUktRow.ranting;
-      
-      var transkripBody = document.getElementById('p-transkrip-list-body'); transkripBody.innerHTML = '';
-      var scoresObj = JSON.parse(targetUktRow.nilaiDetail || "{}");
-      for(var materiName in scoresObj) {
-        var subStr = []; if(scoresObj[materiName].sub) { for(var sKey in scoresObj[materiName].sub) { subStr.push(sKey + " (" + scoresObj[materiName].sub[sKey] + ")"); } }
-        transkripBody.innerHTML += `<tr class="border-b"><td class="p-2 font-bold">${materiName}</td><td class="p-2 text-gray-500 italic">${subStr.join(" + ") || "Komponen Utama"}</td><td class="p-2 text-center font-black text-neutral">${scoresObj[materiName].total || 0}</td></tr>`;
-      }
-
-      var verificationUrl = window.location.origin + "/?verify=" + idUkt;
-      document.getElementById('p-ijazah-qr').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(verificationUrl);
-      document.getElementById('modalIjazah').showModal();
-    }
-
-    function editAnggotaByRow(rowNum) {
-      var item = rawDataStorage.anggota.find(x => x.rowNum == rowNum);
-      if(item) {
-        document.getElementById('form-anggota-block').classList.remove('hidden');
-        document.getElementById('anggota-row-num').value = item.rowNum; document.getElementById('agt-nama').value = item.nama;
-        document.getElementById('agt-email').value = item.email; document.getElementById('agt-pass').value = item.password;
-        document.getElementById('agt-role').value = item.role; document.getElementById('agt-ranting').value = item.ranting;
-        document.getElementById('agt-tingkatan').value = item.tingkatan; document.getElementById('agt-foto-url').value = item.foto || "";
-        document.getElementById('agt-ttl').value = item.ttl || "";
-      }
-    }
-
-    function simpanAnggotaAdminWeb() {
-      var d = { rowNum: document.getElementById('anggota-row-num').value, nama: document.getElementById('agt-nama').value, email: document.getElementById('agt-email').value, password: document.getElementById('agt-pass').value, role: document.getElementById('agt-role').value, ranting: document.getElementById('agt-ranting').value, tingkatan: document.getElementById('agt-tingkatan').value, foto: bersihLinkDrive(document.getElementById('agt-foto-url').value), ttl: document.getElementById('agt-ttl').value };
-      callAPI({ action: 'simpanAnggotaAdmin', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-anggota-block').classList.add('hidden'); loadDataTerproteksi(); });
-    }
-
-    function simpanKriteriaMateriUKTAdmin() {
-      var d = { tingkatan: document.getElementById('materiukt-tingkatan').value, kriteria: document.getElementById('materiukt-kriteria').value };
-      callAPI({ action: 'simpanMateriUKT', email: userAktif.email, data: d }, function(msg) { alert(msg); loadDataTerproteksi(); });
-    }
-
-    function submitLogin() {
-      var email = document.getElementById('log-email').value; var pass = document.getElementById('log-pass').value;
-      callAPI({ action: 'login', email: email, pass: pass }, function(res) {
-        if(res.sukses) {
-          userAktif = res; document.getElementById('modalAuth').close(); document.getElementById('btn-show-auth').classList.add('hidden');
-          document.getElementById('user-profile-badge').classList.remove('hidden'); document.getElementById('protected-menus').classList.remove('hidden');
-          document.getElementById('user-menu-name').innerText = res.nama; document.getElementById('user-menu-role').innerText = res.role;
-          if(res.foto) document.getElementById('user-avatar-img').src = bersihLinkDrive(res.foto);
-          if(res.role.includes("Admin")) { document.getElementById('menu-anggota').classList.remove('hidden'); document.getElementById('sub-tab-massal').classList.remove('hidden'); document.getElementById('sub-tab-kriteria').classList.remove('hidden'); }
-          loadDataTerproteksi();
-        } else { alert(res.pesan); }
-      });
-    }
-
-    function submitRegistrasiLuar() {
-      var p = { action: 'registerOutside', nama: document.getElementById('reg-nama').value, ttl: document.getElementById('reg-ttl').value, email: document.getElementById('reg-email').value, password: document.getElementById('reg-pass').value, ranting: document.getElementById('reg-ranting').value, tingkatan: document.getElementById('reg-tingkatan').value, foto: bersihLinkDrive(document.getElementById('reg-foto-url').value) };
-      if(!p.nama || !p.email || !p.password) return; callAPI(p, function(msg) { alert(msg); pindahKeFormLogin(); });
-    }
-
-    function hadirLatihan() { callAPI({ action: 'catatAbsen', user: userAktif }, function(msg) { alert(msg); loadDataTerproteksi(); }); }
-    function ajukanUKT() { var tk = prompt("Masukkan target sabuk selanjutnya:"); if(tk) callAPI({ action: 'ajukanUKT', email: userAktif.email, tingkatan: tk }, function(msg) { alert(msg); loadDataTerproteksi(); }); }
-  </script>
+  <script src="api.js"></script>
+  <script src="auth.js"></script>
+  <script src="news.js"></script>
+  <script src="schedule.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
