@@ -7,21 +7,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
 </head>
-<body class="bg-base-200 min-h-screen font-sans">
+<body class="bg-base-200 min-h-screen font-sans text-base-content">
 
   <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50 px-4 md:px-8">
-    <div class="flex-1"><a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="location.reload()">PERISAI DIRI</a></div>
+    <div class="flex-1">
+      <a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="gantiTab('berita')">PERISAI DIRI</a>
+    </div>
     <div class="flex-none gap-4">
-      <button id="btn-show-auth" class="btn btn-error btn-sm text-white" onclick="bukaModalAuth()">Masuk / Daftar</button>
+      <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk / Daftar</button>
+      
       <div id="user-profile-badge" class="dropdown dropdown-end hidden">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online">
-          <div class="w-10 rounded-full ring ring-error"><img id="user-avatar-img" src="" /></div>
+          <div class="w-10 rounded-full ring ring-error ring-offset-base-100 ring-offset-2">
+            <img id="user-avatar-img" src="" />
+          </div>
         </div>
-        <ul tabindex="0" class="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-neutral">
-          <li><span id="user-menu-name" class="font-bold text-error"></span></li>
-          <li><span id="user-menu-role" class="text-xs badge badge-ghost"></span></li>
+        <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-neutral">
+          <li><span id="user-menu-name" class="font-bold text-error">Nama User</span></li>
+          <li><span id="user-menu-role" class="text-xs badge badge-ghost">Role</span></li>
           <div class="divider my-1"></div>
-          <li><a onclick="location.reload()" class="text-red-600 font-semibold">Log Out</a></li>
+          <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar / Log Out</a></li>
         </ul>
       </div>
     </div>
@@ -32,8 +37,9 @@
       
       <div class="space-y-6">
         <div class="card bg-base-100 shadow-xl p-3">
-          <ul class="menu w-full space-y-1" id="main-menu-tabs">
+          <ul class="menu bg-base-100 rounded-box w-full space-y-1" id="main-menu-tabs">
             <li><button id="menu-berita" class="active font-bold" onclick="gantiTab('berita')">📰 Berita & Informasi</button></li>
+            
             <span id="protected-menus" class="hidden space-y-1 mt-1 flex flex-col">
               <li><button id="menu-materi" onclick="gantiTab('materi')">🥋 Materi Kurikulum</button></li>
               <li><button id="menu-absensi" onclick="gantiTab('absensi')">📅 Presensi Latihan</button></li>
@@ -47,138 +53,173 @@
 
         <div class="card bg-base-100 shadow-xl p-5 space-y-4">
           <h3 class="text-xs font-bold opacity-60 uppercase tracking-wider">🔍 Filter & Navigasi</h3>
-          <input type="text" id="global-search" oninput="prosesEngineData()" placeholder="Ketik kata kunci..." class="input input-bordered input-sm w-full" />
-          <select id="global-sort" onchange="prosesEngineData()" class="select select-bordered select-sm w-full">
-            <option value="terbaru">Terbaru / Teratas</option>
-            <option value="terlama">Terlama / Terbawah</option>
-          </select>
-          <select id="global-page-size" onchange="resetKeHalamanSatu()" class="select select-bordered select-sm w-full">
-            <option value="3">3 Baris</option>
-            <option value="5" selected>5 Baris</option>
-            <option value="10">10 Baris</option>
-          </select>
-          <div class="flex justify-between items-center pt-2 border-t">
-            <button class="btn btn-sm btn-outline" onclick="halamanSebelumnya()">◀</button>
+          
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold">Cari Data</span></label>
+            <input type="text" id="global-search" oninput="prosesEngineData()" placeholder="Ketik kata kunci..." class="input input-bordered input-sm w-full" />
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold">Urutan Transaksi/Waktu</span></label>
+            <select id="global-sort" onchange="prosesEngineData()" class="select select-bordered select-sm w-full">
+              <option value="terbaru">Terbaru / Teratas</option>
+              <option value="terlama">Terlama / Terbawah</option>
+            </select>
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label"><span class="label-text font-semibold">Data per Halaman</span></label>
+            <select id="global-page-size" onchange="resetKeHalamanSatu()" class="select select-bordered select-sm w-full">
+              <option value="3">3 Baris</option>
+              <option value="5" selected>5 Baris</option>
+              <option value="10">10 Baris</option>
+            </select>
+          </div>
+
+          <div class="flex justify-between items-center pt-2 border-t border-base-200">
+            <button class="btn btn-sm btn-outline" onclick="halamanSebelumnya()">◀ Prev</button>
             <span class="text-xs font-bold">Hal: <span id="current-page-text" class="text-error">1 / 1</span></span>
-            <button class="btn btn-sm btn-outline" onclick="halamanBerikutnya()">▶</button>
+            <button class="btn btn-sm btn-outline" onclick="halamanBerikutnya()">Next ▶</button>
           </div>
         </div>
       </div>
 
       <div class="lg:col-span-3">
         <div class="card bg-base-100 shadow-xl p-6 min-h-[65vh]">
-          <div id="global-loader" class="text-center py-10 hidden"><span class="loading loading-spinner loading-lg text-error"></span></div>
+          
+          <div id="global-loader" class="text-center py-10 hidden">
+            <span class="loading loading-spinner loading-lg text-error"></span>
+            <p class="text-xs text-gray-400 mt-2">Sinkronisasi database...</p>
+          </div>
 
           <div id="view-berita" class="tab-view hidden space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-              <h2 class="text-xl font-bold">📰 Berita Utama</h2>
+              <h2 class="text-xl font-bold text-gray-800">📰 Pengumuman & Berita Terbaru</h2>
               <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('berita')">+ Tambah Berita</button>
             </div>
             <div id="form-berita-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
               <input type="hidden" id="berita-row-num">
               <input type="text" id="berita-judul" placeholder="Judul Berita" class="input input-bordered input-sm w-full">
-              <textarea id="berita-isi" placeholder="Isi Berita..." class="textarea textarea-bordered textarea-sm w-full h-20"></textarea>
+              <textarea id="berita-isi" placeholder="Tulis deskripsi atau isi lengkap berita..." class="textarea textarea-bordered textarea-sm w-full h-24"></textarea>
               <select id="berita-kat" class="select select-bordered select-sm w-full"><option value="Pengumuman">Pengumuman</option><option value="Kegiatan">Kegiatan</option></select>
-              <input type="file" id="berita-file-foto" class="file-input file-input-bordered file-input-sm w-full">
-              <button class="btn btn-sm btn-error text-white btn-block mt-2" onclick="simpanBeritaWeb()">Publish</button>
+              <input type="text" id="berita-foto-url" placeholder="Tautan Link Gambar Berita HD (Contoh: https://...)" class="input input-bordered input-sm w-full">
+              <div class="flex justify-end gap-2 mt-1">
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-berita-block').classList.add('hidden')">Batal</button>
+                <button class="btn btn-sm btn-error text-white" onclick="simpanBeritaWeb()">Terbitkan Berita</button>
+              </div>
             </div>
             <div id="list-berita-render" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
           </div>
 
           <div id="view-materi" class="tab-view hidden space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-              <h2 class="text-xl font-bold">🥋 Kurikulum Materi Latihan</h2>
-              <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('materi')">+ Tambah Materi</button>
+              <h2 class="text-xl font-bold text-gray-800">🥋 Kurikulum Pembelajaran Latihan</h2>
+              <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('materi')">+ Tambah Kurikulum</button>
             </div>
             <div id="form-materi-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
               <input type="hidden" id="materi-row-num">
-              <input type="text" id="materi-nama" placeholder="Nama Gerakan/Jurus" class="input input-bordered input-sm w-full">
-              <select id="materi-kategori" class="select select-bordered select-sm w-full"><option value="Teknik Tangan">Teknik Tangan</option><option value="Seni Kerapian">Seni Kerapian</option><option value="Fisik Gedor">Fisik Gedor</option></select>
-              <input type="text" id="materi-link" placeholder="Link Video YouTube" class="input input-bordered input-sm w-full">
-              <input type="text" id="materi-deskripsi" placeholder="Deskripsi Singkat" class="input input-bordered input-sm w-full">
+              <input type="text" id="materi-nama" placeholder="Nama Jurus/Teknik Gerakan" class="input input-bordered input-sm w-full">
+              <select id="materi-kategori" class="select select-bordered select-sm w-full"><option value="Teknik Tangan Kosong">Teknik Tangan Kosong</option><option value="Seni Kerapian">Seni Kerapian</option><option value="Fisik Kerohanian">Fisik Kerohanian</option></select>
+              <input type="text" id="materi-link" placeholder="Link Tautan Video Gerakan" class="input input-bordered input-sm w-full">
+              <input type="text" id="materi-deskripsi" placeholder="Keterangan Gerakan" class="input input-bordered input-sm w-full">
               <select id="materi-tingkatan" class="select select-bordered select-sm w-full"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option><option value="Terampil 1">Terampil 1</option><option value="Terampil 2">Terampil 2</option></select>
-              <button class="btn btn-sm btn-neutral btn-block mt-2" onclick="simpanMateriWeb()">Simpan Kurikulum</button>
+              <div class="flex justify-end gap-2 mt-1">
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-materi-block').classList.add('hidden')">Batal</button>
+                <button class="btn btn-sm btn-neutral" onclick="simpanMateriWeb()">Simpan Materi</button>
+              </div>
             </div>
             <div id="list-materi-render" class="space-y-2"></div>
           </div>
 
           <div id="view-absensi" class="tab-view hidden space-y-4">
-            <h2 class="text-xl font-bold border-b pb-3">📅 Presensi Kehadiran Latihan</h2>
-            <button class="btn btn-error btn-block text-white py-4 font-bold h-auto shadow-md" onclick="hadirLatihan()">🔴 KLIK UNTUK ABSEN SEKARANG</button>
-            <table class="table table-zebra table-sm">
-              <thead><tr class="bg-base-300"><th>ID</th><th>Tanggal</th><th>Nama</th><th>Ranting</th><th>Status</th><th>Aksi</th></tr></thead>
+            <h2 class="text-xl font-bold border-b pb-3">📅 Presensi Daftar Hadir Latihan</h2>
+            <button class="btn btn-error btn-block text-white py-4 font-bold h-auto shadow-md" onclick="hadirLatihan()">🔴 TEKAN UNTUK ABSENSI KEHADIRAN MASUK</button>
+            <div class="overflow-x-auto"><table class="table table-zebra table-sm">
+              <thead><tr class="bg-base-300"><th>ID</th><th>Waktu/Tanggal</th><th>Nama Lengkap</th><th>Ranting/Unit</th><th>Status</th><th>Aksi Admin</th></tr></thead>
               <tbody id="list-absen-render"></tbody>
-            </table>
+            </table></div>
           </div>
 
           <div id="view-ukt" class="tab-view hidden space-y-4">
-            <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">🏆 Registrasi UKT</h2><button class="btn btn-sm btn-neutral" onclick="ajukanUKT()">Daftar UKT</button></div>
-            <table class="table table-sm">
-              <thead><tr class="bg-base-300"><th>ID</th><th>Email</th><th>Target Tingkat</th><th>Status</th><th>Aksi Admin</th></tr></thead>
+            <div class="flex justify-between items-center border-b pb-3">
+              <h2 class="text-xl font-bold">🏆 Validasi Kelulusan Ujian Tingkat (UKT)</h2>
+              <button class="btn btn-sm btn-neutral" onclick="ajukanUKT()">Daftar UKT Tingkat Atas</button>
+            </div>
+            <div class="overflow-x-auto"><table class="table table-sm">
+              <thead><tr class="bg-base-300"><th>ID Registrasi</th><th>Email Anggota</th><th>Tingkat Tujuan</th><th>Status Kelulusan</th><th>Opsi Pelatih</th></tr></thead>
               <tbody id="list-ukt-render"></tbody>
-            </table>
+            </table></div>
           </div>
 
           <div id="view-surat" class="tab-view hidden space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-              <h2 class="text-xl font-bold">📁 Arsip Sekretariat & Surat Resmi</h2>
-              <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('surat')">+ Arsip Baru</button>
+              <h2 class="text-xl font-bold">📁 Arsip Sekretariat & Surat Resmi Organisasi</h2>
+              <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormFormulir('surat')">+ Registrasi Surat</button>
             </div>
             <div id="form-surat-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
               <input type="hidden" id="surat-row-num">
               <input type="text" id="srt-nomor" placeholder="Nomor Surat Resmi" class="input input-bordered input-sm w-full">
-              <input type="text" id="srt-judul" placeholder="Perihal/Judul" class="input input-bordered input-sm w-full">
+              <input type="text" id="srt-judul" placeholder="Perihal/Judul Surat" class="input input-bordered input-sm w-full">
               <select id="srt-jenis" class="select select-bordered select-sm w-full"><option value="Masuk">Surat Masuk</option><option value="Keluar">Surat Keluar</option></select>
-              <input type="text" id="srt-link" placeholder="Link Dokumen PDF Cloud" class="input input-bordered input-sm w-full">
-              <button class="btn btn-sm btn-success w-full mt-1" onclick="simpanSuratWeb()">Simpan Arsip</button>
+              <input type="text" id="srt-link" placeholder="Link URL Berkas Google Drive PDF" class="input input-bordered input-sm w-full">
+              <div class="flex justify-end gap-2 mt-1">
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-surat-block').classList.add('hidden')">Batal</button>
+                <button class="btn btn-sm btn-success text-white" onclick="simpanSuratWeb()">Arsip Surat</button>
+              </div>
             </div>
-            <table class="table table-sm">
-              <thead><tr class="bg-base-300"><th>Nomor</th><th>Judul</th><th>Jenis</th><th>Aksi</th></tr></thead>
+            <div class="overflow-x-auto"><table class="table table-sm">
+              <thead><tr class="bg-base-300"><th>Nomor</th><th>Judul / Perihal</th><th>Kategori</th><th>Opsi</th></tr></thead>
               <tbody id="list-surat-render"></tbody>
-            </table>
+            </table></div>
           </div>
 
           <div id="view-keuangan" class="tab-view hidden space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-              <h2 class="text-xl font-bold">💰 Laporan Keuangan Kas</h2>
+              <h2 class="text-xl font-bold">💰 Buku Laporan Kas Keuangan Organisasi</h2>
               <span class="badge badge-lg badge-success text-white font-bold" id="txt-saldo">Rp. 0</span>
             </div>
             <div id="form-keuangan-block" class="p-4 bg-base-200 rounded-xl opsi-admin hidden space-y-2">
-              <h6 class="font-bold text-xs">Formulir Catat / Edit Transaksi Kas</h6>
+              <h6 class="font-bold text-xs">Form Catat Kas Masuk/Keluar</h6>
               <input type="hidden" id="keuangan-row-num">
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <select id="keu-jenis" class="select select-bordered select-sm"><option value="Pemasukan">Pemasukan</option><option value="Pengeluaran">Pengeluaran</option></select>
-                <input type="text" id="keu-kat" placeholder="Kategori" class="input input-bordered input-sm">
-                <input type="number" id="keu-jumlah" placeholder="Nominal Rp" class="input input-bordered input-sm">
-                <input type="text" id="keu-ket" placeholder="Keterangan" class="input input-bordered input-sm">
+                <input type="text" id="keu-kat" placeholder="Kategori Iuran" class="input input-bordered input-sm">
+                <input type="number" id="keu-jumlah" placeholder="Nominal (Rp)" class="input input-bordered input-sm">
+                <input type="text" id="keu-ket" placeholder="Keterangan Mutasi" class="input input-bordered input-sm">
               </div>
-              <button class="btn btn-sm btn-dark mt-1" onclick="simpanTransaksiWeb()">Simpan Kas</button>
+              <div class="flex justify-end gap-2 mt-1">
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-keuangan-block').classList.add('hidden')">Batal</button>
+                <button class="btn btn-sm btn-dark" onclick="simpanTransaksiWeb()">Simpan Kas</button>
+              </div>
             </div>
-            <table class="table table-sm">
-              <thead><tr class="bg-base-300"><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Nominal</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+            <div class="overflow-x-auto"><table class="table table-sm">
+              <thead><tr class="bg-base-300"><th>Tanggal</th><th>Jenis Kas</th><th>Kategori</th><th>Nominal</th><th>Keterangan</th><th>Hapus/Edit</th></tr></thead>
               <tbody id="list-keuangan-render"></tbody>
-            </table>
+            </table></div>
           </div>
 
           <div id="view-anggota" class="tab-view hidden space-y-4">
             <h2 class="text-xl font-bold border-b pb-3">👥 Pengaturan Hak Akses Akun Anggota</h2>
             <div id="form-anggota-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
-              <h6 class="font-bold text-xs text-error">Edit Detail Informasi Akun Anggota</h6>
+              <h6 class="font-bold text-xs text-error">Modifikasi Informasi Akun Anggota</h6>
               <input type="hidden" id="anggota-row-num">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <input type="text" id="agt-nama" placeholder="Nama Lengkap" class="input input-bordered input-sm">
-                <input type="email" id="agt-email" placeholder="Email" class="input input-bordered input-sm">
-                <input type="text" id="agt-pass" placeholder="Password Baru" class="input input-bordered input-sm">
+                <input type="text" id="agt-nama" placeholder="Nama Anggota" class="input input-bordered input-sm">
+                <input type="email" id="agt-email" placeholder="Email Akun" class="input input-bordered input-sm">
+                <input type="text" id="agt-pass" placeholder="Sandi/Password" class="input input-bordered input-sm">
                 <select id="agt-role" class="select select-bordered select-sm"><option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option><option value="Admin Cabang">Admin Cabang</option></select>
-                <input type="text" id="agt-ranting" placeholder="Ranting" class="input input-bordered input-sm">
+                <input type="text" id="agt-ranting" placeholder="Asal Ranting" class="input input-bordered input-sm">
                 <select id="agt-tingkatan" class="select select-bordered select-sm"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option><option value="Terampil 1">Terampil 1</option><option value="Terampil 2">Terampil 2</option></select>
               </div>
-              <button class="btn btn-sm btn-error text-white mt-1" onclick="simpanAnggotaAdminWeb()">Terapkan Perubahan</button>
+              <div class="flex justify-end gap-2 mt-1">
+                <button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-anggota-block').classList.add('hidden')">Batal</button>
+                <button class="btn btn-sm btn-error text-white" onclick="simpanAnggotaAdminWeb()">Terapkan Perubahan</button>
+              </div>
             </div>
-            <table class="table table-sm align-middle">
-              <thead><tr class="bg-neutral text-neutral-content"><th>Foto</th><th>Nama</th><th>Email</th><th>Role</th><th>Ranting</th><th>Sabuk</th><th>Aksi</th></tr></thead>
+            <div class="overflow-x-auto"><table class="table table-sm align-middle">
+              <thead><tr class="bg-neutral text-neutral-content"><th>Foto</th><th>Nama Lengkap</th><th>Email</th><th>Hak Akses</th><th>Ranting</th><th>Sabuk</th><th>Aksi</th></tr></thead>
               <tbody id="list-anggota-render"></tbody>
-            </table>
+            </table></div>
           </div>
 
         </div>
@@ -189,32 +230,35 @@
   <dialog id="modalAuth" class="modal">
     <div class="modal-box max-w-sm">
       <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
+      
       <div id="block-login-form" class="space-y-3">
         <h3 class="font-bold text-lg text-center text-error">Masuk Portal Anggota</h3>
-        <input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full">
-        <input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full">
-        <button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button>
-        <p class="text-center text-xs mt-2">Belum terdaftar? <a class="link link-error font-bold" onclick="pindahKeFormRegistrasi()">Daftar Mandiri</a></p>
+        <input type="email" id="log-email" placeholder="Email Resmi" class="input input-bordered input-sm w-full">
+        <input type="password" id="log-pass" placeholder="Kata Sandi" class="input input-bordered input-sm w-full">
+        <button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk Aplikasi</button>
+        <p class="text-center text-xs mt-2">Anggota baru? <a class="link link-error font-bold" onclick="pindahKeFormRegistrasi()">Daftar Akun Mandiri</a></p>
       </div>
+
       <div id="block-register-form" class="space-y-2 hidden">
-        <h3 class="font-bold text-lg text-center text-success">Pendaftaran Baru</h3>
+        <h3 class="font-bold text-lg text-center text-success">Form Pendaftaran Baru</h3>
         <input type="text" id="reg-nama" placeholder="Nama Lengkap" class="input input-bordered input-sm w-full">
-        <input type="email" id="reg-email" placeholder="Email Aktif" class="input input-bordered input-sm w-full">
-        <input type="password" id="reg-pass" placeholder="Password" class="input input-bordered input-sm w-full">
-        <input type="text" id="reg-ranting" placeholder="Nama Ranting" class="input input-bordered input-sm w-full">
+        <input type="email" id="reg-email" placeholder="Alamat Email" class="input input-bordered input-sm w-full">
+        <input type="password" id="reg-pass" placeholder="Sandi Password Baru" class="input input-bordered input-sm w-full">
+        <input type="text" id="reg-ranting" placeholder="Nama Ranting/Unit" class="input input-bordered input-sm w-full">
         <select id="reg-tingkatan" class="select select-bordered select-sm w-full"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option></select>
-        <div class="form-control"><label class="label-text text-xs font-bold text-error">Foto Profil Resmi</label><input type="file" id="reg-file-foto" class="file-input file-input-bordered file-input-sm w-full" accept="image/*"></div>
-        <button class="btn btn-success btn-sm btn-block text-white" onclick="submitRegistrasiLuar()">Selesaikan Pendaftaran</button>
-        <p class="text-center text-xs mt-2"><a class="link link-neutral" onclick="pindahKeFormLogin()">Kembali</a></p>
+        <div class="form-control"><label class="label-text text-xs font-bold text-error">Unggah Foto Profil Latihan</label><input type="file" id="reg-file-foto" class="file-input file-input-bordered file-input-sm w-full" accept="image/*"></div>
+        <button class="btn btn-success btn-sm btn-block text-white" onclick="submitRegistrasiLuar()">Kirim Pendaftaran</button>
+        <p class="text-center text-xs mt-2"><a class="link link-neutral" onclick="pindahKeFormLogin()">Kembali ke Halaman Login</a></p>
       </div>
     </div>
   </dialog>
 
   <script>
-    // PASTE ALAMAT GOOGLE APP SCRIPT TERBARU ANDA DI BAWAH INI
+    // URL API MAKRO GOOGLE APPS SCRIPT AKTIF ANDA
     const API_URL = "https://script.google.com/macros/s/AKfycbyAJH4ffaWR5kQFz-9igmOkSy-eZFAxx_D3hYPzf8i8u9O6JiisAfBlhYn-x00P4KXSuQ/exec";
     
-    var currentTab = "berita"; var userAktif = null;
+    var currentTab = "berita"; 
+    var userAktif = null;
     var rawDataStorage = { berita: [], materi: [], absensi: [], ukt: [], surat: [], keuangan: [], anggota: [] };
     var currentPage = 1;
 
@@ -223,24 +267,37 @@
     function pindahKeFormRegistrasi() { document.getElementById('block-login-form').classList.add('hidden'); document.getElementById('block-register-form').classList.remove('hidden'); }
     function pindahKeFormLogin() { document.getElementById('block-register-form').classList.add('hidden'); document.getElementById('block-login-form').classList.remove('hidden'); }
 
+    // API CONNECTOR
     function callAPI(payload, successCallback) {
       document.getElementById('global-loader').classList.remove('hidden');
       fetch(API_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payload) })
-      .then(res => res.json()).then(res => { document.getElementById('global-loader').classList.add('hidden'); successCallback(res); });
+      .then(res => res.json()).then(res => { 
+        document.getElementById('global-loader').classList.add('hidden'); 
+        successCallback(res); 
+      }).catch(err => {
+        document.getElementById('global-loader').classList.add('hidden');
+        console.error("Gagal melakukan transmisi API:", err);
+      });
     }
 
     function initLoadPublicData() { callAPI({ action: 'getBerita' }, function(data) { rawDataStorage.berita = data; gantiTab('berita'); }); }
+    
     function loadDataTerproteksi() {
       if(!userAktif) return;
       callAPI({ action: 'fetchProtectedData', email: userAktif.email, role: userAktif.role }, function(res) {
-        rawDataStorage.berita = res.berita || []; rawDataStorage.materi = res.materi || []; rawDataStorage.absensi = res.absensi || [];
-        rawDataStorage.ukt = res.ukt || []; rawDataStorage.surat = res.surat || []; rawDataStorage.keuangan = res.keuangan || [];
+        rawDataStorage.berita = res.berita || []; 
+        rawDataStorage.materi = res.materi || []; 
+        rawDataStorage.absensi = res.absensi || [];
+        rawDataStorage.ukt = res.ukt || []; 
+        rawDataStorage.surat = res.surat || []; 
+        rawDataStorage.keuangan = res.keuangan || [];
         document.getElementById('txt-saldo').innerText = "Rp. " + (res.saldo || 0).toLocaleString('id-ID');
         if(userAktif.role.includes("Admin")) { rawDataStorage.anggota = res.anggota || []; }
         prosesEngineData();
       });
     }
 
+    // REAL-TIME SEARCH, SORTING & PAGINASI ENGINE
     function prosesEngineData() {
       var query = document.getElementById('global-search').value.toLowerCase();
       var sortType = document.getElementById('global-sort').value;
@@ -283,58 +340,38 @@
       prosesEngineData();
     }
 
-    function bukaFormFormulir(tipe) {
-      document.getElementById('form-' + tipe + '-block').classList.remove('hidden');
-      document.getElementById(tipe + '-row-num').value = ""; // Mode baru
-      if(tipe === 'berita') { document.getElementById('berita-judul').value=""; document.getElementById('berita-isi').value=""; }
-      if(tipe === 'materi') { document.getElementById('materi-nama').value=""; document.getElementById('materi-link').value=""; document.getElementById('materi-deskripsi').value=""; }
-      if(tipe === 'surat') { document.getElementById('srt-nomor').value=""; document.getElementById('srt-judul').value=""; document.getElementById('srt-link').value=""; }
-      if(tipe === 'keuangan') { document.getElementById('keu-kat').value=""; document.getElementById('keu-jumlah').value=""; document.getElementById('keu-ket').value=""; }
-    }
-
-    // VISUAL RENDER COMPONENT CONTROLLER
+    // VISUAL DATA RENDERING COMPONENT
     function renderDataVisual(data) {
       var isAdmin = (userAktif && userAktif.role.includes("Admin"));
 
-     if (currentTab === 'berita') {
-  var container = document.getElementById('list-berita-render'); container.innerHTML = '';
-  if(data.length === 0) { container.innerHTML = '<p class="text-muted text-center py-4">Tidak ada berita.</p>'; return; }
-  
-  data.forEach(b => {
-    var img = b.foto ? `<img src="${b.foto}" class="w-full h-44 object-cover">` : '';
-    
-    // LOGIKA POTONG KATA (Jika teks lebih dari 120 karakter, sembunyikan sisanya)
-    var isiTextTextbox = '';
-    if (b.isi.length > 120) {
-      isiTextTextbox = `
-        <span class="short-text">${b.isi.substring(0, 120)}...</span>
-        <span class="full-text hidden">${b.isi}</span>
-        <button class="btn btn-link btn-xs p-0 text-error block mt-1 lowercase font-bold" onclick="toggleReadMore(this)">lihat selengkapnya</button>
-      `;
-    } else {
-      isiTextTextbox = b.isi;
-    }
+      if (currentTab === 'berita') {
+        var container = document.getElementById('list-berita-render'); container.innerHTML = '';
+        if(data.length === 0) { container.innerHTML = '<p class="text-muted text-center py-4 text-xs">Belum ada berita terbaru.</p>'; return; }
+        
+        data.forEach(b => {
+          var img = b.foto ? `<img src="${b.foto}" class="w-full h-44 object-cover">` : '';
+          
+          // MEKANISME POTONG KATA BERITA
+          var isiTextComponent = '';
+          if (b.isi.length > 120) {
+            isiTextComponent = `
+              <span class="short-text">${b.isi.substring(0, 120)}...</span>
+              <span class="full-text hidden">${b.isi}</span>
+              <button class="btn btn-link btn-xs p-0 text-error block mt-1 lowercase font-bold" onclick="toggleReadMore(this)">lihat selengkapnya</button>
+            `;
+          } else {
+            isiTextComponent = b.isi;
+          }
 
-    // Menggunakan fungsi edit berbasis nomor baris array agar terhindar dari bug tanda petik
-    var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="editBeritaByRow(${b.rowNum})">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button>` : '';
-    
-    container.innerHTML += `
-      <div class="card card-compact bg-base-100 shadow-md border border-base-300 overflow-hidden">
-        ${img}
-        <div class="card-body">
-          <h2 class="card-title text-sm font-bold">${b.judul} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2>
-          <p class="text-[10px] opacity-40">${b.tanggal}</p>
-          <div class="text-xs text-gray-600 mt-1">${isiTextTextbox}</div>
-          <div class="card-actions justify-end gap-1 mt-2">${adminBtn}</div>
-        </div>
-      </div>`;
-  });
-}
+          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="editBeritaByRow(${b.rowNum})">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button>` : '';
+          container.innerHTML += `<div class="card card-compact bg-base-100 shadow-md border border-base-300 overflow-hidden">${img}<div class="card-body"><h2 class="card-title text-sm font-bold">${b.judul} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2><p class="text-[10px] opacity-40">${b.tanggal}</p><div class="text-xs text-gray-600 mt-1">${isiTextComponent}</div><div class="card-actions justify-end gap-1 mt-2">${adminBtn}</div></div></div>`;
+        });
       }
       else if (currentTab === 'materi') {
         var container = document.getElementById('list-materi-render'); container.innerHTML = '';
+        if(data.length === 0) { container.innerHTML = '<p class="text-muted text-center py-4 text-xs">Kurikulum tidak tersedia.</p>'; return; }
         data.forEach(m => {
-          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="pemicuEditMateri(${m.rowNum},'${m.nama}','${m.kategori}','${m.link}','${m.deskripsi}','${m.tingkatan}')">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Materi_Latihan', ${m.rowNum})">✕</button>` : '';
+          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="editMateriByRow(${m.rowNum})">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Materi_Latihan', ${m.rowNum})">✕</button>` : '';
           container.innerHTML += `<div class="alert shadow-sm bg-base-200 flex justify-between items-center"><div><h4 class="font-bold text-sm">${m.nama} <span class="badge badge-outline text-xs">${m.tingkatan}</span></h4><p class="text-xs opacity-50">${m.kategori} - ${m.deskripsi}</p></div><div class="flex gap-1"><a href="${m.link}" target="_blank" class="btn btn-xs btn-error text-white">Video</a>${adminBtn}</div></div>`;
         });
       }
@@ -355,7 +392,7 @@
       else if (currentTab === 'surat') {
         var tbody = document.getElementById('list-surat-render'); tbody.innerHTML = '';
         data.forEach(r => {
-          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="pemicuEditSurat(${r.rowNum},'${r.nomor}','${r.judul}','${r.jenis}','${r.link}')">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Surat', ${r.rowNum})">✕</button>` : '';
+          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-outline" onclick="editSuratByRow(${r.rowNum})">Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Surat', ${r.rowNum})">✕</button>` : '';
           tbody.innerHTML += `<tr class="text-xs"><td>${r.nomor}</td><td><b>${r.judul}</b></td><td><span class="badge badge-neutral badge-sm">${r.jenis}</span></td><td><div class="flex gap-1"><a href="${r.link}" target="_blank" class="btn btn-xs btn-primary">PDF</a>${adminBtn}</div></td></tr>`;
         });
       }
@@ -363,7 +400,7 @@
         var tbody = document.getElementById('list-keuangan-render'); tbody.innerHTML = '';
         data.forEach(r => {
           var c = r.jenis === "Pemasukan" ? "text-success" : "text-danger";
-          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-circle btn-ghost text-xs" onclick="pemicuEditKeuangan(${r.rowNum},'${r.jenis}','${r.kategori}',${r.jumlah},'${r.keterangan}')">📝</button><button class="btn btn-xs btn-circle btn-ghost text-error text-xs" onclick="hapusRowUniversal('Keuangan', ${r.rowNum})">✕</button>` : '-';
+          var adminBtn = isAdmin ? `<button class="btn btn-xs btn-circle btn-ghost text-xs" onclick="editKeuanganByRow(${r.rowNum})">📝</button><button class="btn btn-xs btn-circle btn-ghost text-error text-xs" onclick="hapusRowUniversal('Keuangan', ${r.rowNum})">✕</button>` : '-';
           tbody.innerHTML += `<tr class="text-xs"><td>${r.tanggal}</td><td><b class="${c}">${r.jenis}</b></td><td>${r.kategori}</td><td><b>Rp. ${r.jumlah.toLocaleString('id-ID')}</b></td><td>${r.keterangan}</td><td>${adminBtn}</td></tr>`;
         });
       }
@@ -371,39 +408,107 @@
         var tbody = document.getElementById('list-anggota-render'); tbody.innerHTML = '';
         data.forEach(r => {
           var img = r.foto ? `<img src="${r.foto}" class="w-8 h-8 rounded-full object-cover">` : '<div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-[10px]">No</div>';
-          tbody.innerHTML += `<tr class="text-xs"><td>${img}</td><td><b>${r.nama}</b></td><td>${r.email}</td><td><span class="badge badge-sm badge-info text-white">${r.role}</span></td><td>${r.ranting}</td><td><b>${r.tingkatan}</b></td><td><div class="flex gap-1"><button class="btn btn-xs btn-outline btn-warning" onclick="pemicuEditAnggota(${r.rowNum},'${r.nama}','${r.email}','${r.password}','${r.role}','${r.ranting}','${r.tingkatan}')">Edit</button><button class="btn btn-xs btn-outline btn-error" onclick="hapusRowUniversal('Akun_Pengguna', ${r.rowNum})">Hapus</button></div></td></tr>`;
+          tbody.innerHTML += `<tr class="text-xs"><td>${img}</td><td><b>${r.nama}</b></td><td>${r.email}</td><td><span class="badge badge-sm badge-info text-white">${r.role}</span></td><td>${r.ranting}</td><td><b>${r.tingkatan}</b></td><td><div class="flex gap-1"><button class="btn btn-xs btn-outline btn-warning" onclick="editAnggotaByRow(${r.rowNum})">Edit</button><button class="btn btn-xs btn-outline btn-error" onclick="hapusRowUniversal('Akun_Pengguna', ${r.rowNum})">Hapus</button></div></td></tr>`;
         });
       }
     }
 
-    // PEMICU PARSING FORM MODE EDIT
-    function pemicuEditBerita(row, jdl, isi, kat) { document.getElementById('form-berita-block').classList.remove('hidden'); document.getElementById('berita-row-num').value = row; document.getElementById('berita-judul').value = jdl; document.getElementById('berita-isi').value = isi; document.getElementById('berita-kat').value = kat; }
-    function pemicuEditMateri(row, nm, kat, lnk, dsk, tkt) { document.getElementById('form-materi-block').classList.remove('hidden'); document.getElementById('materi-row-num').value = row; document.getElementById('materi-nama').value = nm; document.getElementById('materi-kategori').value = kat; document.getElementById('materi-link').value = lnk; document.getElementById('materi-deskripsi').value = dsk; document.getElementById('materi-tingkatan').value = tkt; }
-    function pemicuEditSurat(row, no, jdl, jns, lnk) { document.getElementById('form-surat-block').classList.remove('hidden'); document.getElementById('surat-row-num').value = row; document.getElementById('srt-nomor').value = no; document.getElementById('srt-judul').value = jdl; document.getElementById('srt-jenis').value = jns; document.getElementById('srt-link').value = lnk; }
-    function pemicuEditKeuangan(row, jns, kat, jml, ket) { document.getElementById('form-keuangan-block').classList.remove('hidden'); document.getElementById('keuangan-row-num').value = row; document.getElementById('keu-jenis').value = jns; document.getElementById('keu-kat').value = kat; document.getElementById('keu-jumlah').value = jml; document.getElementById('keu-ket').value = ket; }
-    function pemicuEditAnggota(row, nm, em, ps, rl, rt, tk) { document.getElementById('form-anggota-block').classList.remove('hidden'); document.getElementById('anggota-row-num').value = row; document.getElementById('agt-nama').value = nm; document.getElementById('agt-email').value = em; document.getElementById('agt-pass').value = ps; document.getElementById('agt-role').value = rl; document.getElementById('agt-ranting').value = rt; document.getElementById('agt-tingkatan').value = tk; }
+    // TOGGLE READ MORE
+    function toggleReadMore(btn) {
+      var parent = btn.parentElement;
+      var shortSpan = parent.querySelector('.short-text');
+      var fullSpan = parent.querySelector('.full-text');
+      if (shortSpan.classList.contains('hidden')) {
+        shortSpan.classList.remove('hidden'); fullSpan.classList.add('hidden'); btn.innerText = "lihat selengkapnya";
+      } else {
+        shortSpan.classList.add('hidden'); fullSpan.classList.remove('hidden'); btn.innerText = "sembunyikan";
+      }
+    }
 
-    // COMMIT PROCESSOR CONTROLLER
-function simpanBeritaWeb() {
-  var d = { 
-    rowNum: document.getElementById('berita-row-num').value, 
-    judul: document.getElementById('berita-judul').value, 
-    isi: document.getElementById('berita-isi').value, 
-    kategori: document.getElementById('berita-kat').value, 
-    foto: document.getElementById('berita-foto-url').value // Mengambil string URL gambar
-  };
-  
-  if(!d.judul || !d.isi) { alert("Judul dan isi berita wajib diisi!"); return; }
-  
-  callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { 
-    alert(msg); 
-    document.getElementById('form-berita-block').classList.add('hidden'); 
-    loadDataTerproteksi(); 
-  });
-}
+    // FORM OPENER & PREPARATOR CLEANER
+    function bukaFormFormulir(tipe) {
+      document.getElementById('form-' + tipe + '-block').classList.remove('hidden');
+      document.getElementById(tipe + '-row-num').value = ""; 
+      if(tipe === 'berita') { document.getElementById('berita-judul').value=""; document.getElementById('berita-isi').value=""; document.getElementById('berita-foto-url').value=""; }
+      if(tipe === 'materi') { document.getElementById('materi-nama').value=""; document.getElementById('materi-link').value=""; document.getElementById('materi-deskripsi').value=""; }
+      if(tipe === 'surat') { document.getElementById('srt-nomor').value=""; document.getElementById('srt-judul').value=""; document.getElementById('srt-link').value=""; }
+      if(tipe === 'keuangan') { document.getElementById('keu-kat').value=""; document.getElementById('keu-jumlah').value=""; document.getElementById('keu-ket').value=""; }
+    }
+
+    // OBJECT LOOKUP ROW EDIT PROCESSORS (SANGAT AMAN DARI BUG TANDA PETIK)
+    function editBeritaByRow(rowNum) {
+      var item = rawDataStorage.berita.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-berita-block').classList.remove('hidden');
+        document.getElementById('berita-row-num').value = item.rowNum;
+        document.getElementById('berita-judul').value = item.judul;
+        document.getElementById('berita-isi').value = item.isi;
+        document.getElementById('berita-kat').value = item.kategori;
+        document.getElementById('berita-foto-url').value = item.foto || "";
+      }
+    }
+
+    function editMateriByRow(rowNum) {
+      var item = rawDataStorage.materi.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-materi-block').classList.remove('hidden');
+        document.getElementById('materi-row-num').value = item.rowNum;
+        document.getElementById('materi-nama').value = item.nama;
+        document.getElementById('materi-kategori').value = item.kategori;
+        document.getElementById('materi-link').value = item.link;
+        document.getElementById('materi-deskripsi').value = item.deskripsi;
+        document.getElementById('materi-tingkatan').value = item.tingkatan;
+      }
+    }
+
+    function editSuratByRow(rowNum) {
+      var item = rawDataStorage.surat.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-surat-block').classList.remove('hidden');
+        document.getElementById('surat-row-num').value = item.rowNum;
+        document.getElementById('srt-nomor').value = item.nomor;
+        document.getElementById('srt-judul').value = item.judul;
+        document.getElementById('srt-jenis').value = item.jenis;
+        document.getElementById('srt-link').value = item.link;
+      }
+    }
+
+    function editKeuanganByRow(rowNum) {
+      var item = rawDataStorage.keuangan.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-keuangan-block').classList.remove('hidden');
+        document.getElementById('keuangan-row-num').value = item.rowNum;
+        document.getElementById('keu-jenis').value = item.jenis;
+        document.getElementById('keu-kat').value = item.kategori;
+        document.getElementById('keu-jumlah').value = item.jumlah;
+        document.getElementById('keu-ket').value = item.keterangan;
+      }
+    }
+
+    function editAnggotaByRow(rowNum) {
+      var item = rawDataStorage.anggota.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-anggota-block').classList.remove('hidden');
+        document.getElementById('anggota-row-num').value = item.rowNum;
+        document.getElementById('agt-nama').value = item.nama;
+        document.getElementById('agt-email').value = item.email;
+        document.getElementById('agt-pass').value = item.password;
+        document.getElementById('agt-role').value = item.role;
+        document.getElementById('agt-ranting').value = item.ranting;
+        document.getElementById('agt-tingkatan').value = item.tingkatan;
+      }
+    }
+
+    // COMMIT WEB MUTATOR SUBMITTERS
+    function simpanBeritaWeb() {
+      var d = { rowNum: document.getElementById('berita-row-num').value, judul: document.getElementById('berita-judul').value, isi: document.getElementById('berita-isi').value, kategori: document.getElementById('berita-kat').value, foto: document.getElementById('berita-foto-url').value };
+      if(!d.judul || !d.isi) return;
+      callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-berita-block').classList.add('hidden'); loadDataTerproteksi(); });
+    }
 
     function simpanMateriWeb() {
       var d = { rowNum: document.getElementById('materi-row-num').value, nama: document.getElementById('materi-nama').value, kategori: document.getElementById('materi-kategori').value, link: document.getElementById('materi-link').value, deskripsi: document.getElementById('materi-deskripsi').value, tingkatan: document.getElementById('materi-tingkatan').value };
+      if(!d.nama) return;
       callAPI({ action: 'simpanMateri', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-materi-block').classList.add('hidden'); loadDataTerproteksi(); });
     }
 
@@ -412,19 +517,22 @@ function simpanBeritaWeb() {
       callAPI({ action: 'simpanSurat', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-surat-block').classList.add('hidden'); loadDataTerproteksi(); });
     }
 
+    // ADDED: EDIT IN KEUANGAN LOGIC WORKERS
     function simpanTransaksiWeb() {
       var d = { rowNum: document.getElementById('keuangan-row-num').value, jenis: document.getElementById('keu-jenis').value, kategori: document.getElementById('keu-kat').value, jumlah: document.getElementById('keu-jumlah').value, keterangan: document.getElementById('keu-ket').value };
       callAPI({ action: 'simpanKas', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-keuangan-block').classList.add('hidden'); loadDataTerproteksi(); });
     }
 
+    // ADDED: EDIT IN MEMBER LOGIC WORKERS
     function simpanAnggotaAdminWeb() {
       var d = { rowNum: document.getElementById('anggota-row-num').value, nama: document.getElementById('agt-nama').value, email: document.getElementById('agt-email').value, password: document.getElementById('agt-pass').value, role: document.getElementById('agt-role').value, ranting: document.getElementById('agt-ranting').value, tingkatan: document.getElementById('agt-tingkatan').value };
       callAPI({ action: 'simpanAnggotaAdmin', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-anggota-block').classList.add('hidden'); loadDataTerproteksi(); });
     }
 
-    // AUTH & OTHERS HANDLING
+    // PUBLIC ACCESS AUTHENTICATION HANDLERS
     function submitLogin() {
       var email = document.getElementById('log-email').value; var pass = document.getElementById('log-pass').value;
+      if(!email || !pass) return;
       callAPI({ action: 'login', email: email, pass: pass }, function(res) {
         if(res.sukses) {
           userAktif = res; document.getElementById('modalAuth').close();
@@ -454,6 +562,7 @@ function simpanBeritaWeb() {
     function hadirLatihan() { callAPI({ action: 'catatAbsen', user: userAktif }, function(msg) { alert(msg); loadDataTerproteksi(); }); }
     function ajukanUKT() { var tk = prompt("Masukkan target sabuk selanjutnya:"); if(tk) callAPI({ action: 'ajukanUKT', email: userAktif.email, tingkatan: tk }, function(msg) { alert(msg); loadDataTerproteksi(); }); }
 
+    // FILE BUFFER IMAGE COMPRESSOR FOR REGISTRATION FORM
     function getBase64Compressed(file, callback) {
       if (!file) { callback(""); return; }
       var reader = new FileReader(); reader.readAsDataURL(file);
@@ -468,50 +577,8 @@ function simpanBeritaWeb() {
         };
       };
     }
-// Fungsi Toggle Menampilkan / Menyembunyikan Berita Panjang
-function toggleReadMore(btn) {
-  var parent = btn.parentElement;
-  var shortSpan = parent.querySelector('.short-text');
-  var fullSpan = parent.querySelector('.full-text');
-  
-  if (shortSpan.classList.contains('hidden')) {
-    shortSpan.classList.remove('hidden');
-    fullSpan.classList.add('hidden');
-    btn.innerText = "lihat selengkapnya";
-  } else {
-    shortSpan.classList.add('hidden');
-    fullSpan.classList.remove('hidden');
-    btn.innerText = "sembunyikan";
-  }
-}
 
-// Fungsi Ambil Data Edit Berita Berdasarkan Baris Tanpa Rusak Tanda Petik (Flawless Quote)
-function editBeritaByRow(rowNum) {
-  var item = rawDataStorage.berita.find(x => x.rowNum == rowNum);
-  if(item) {
-    document.getElementById('form-berita-block').classList.remove('hidden');
-    document.getElementById('berita-row-num').value = item.rowNum;
-    document.getElementById('berita-judul').value = item.judul;
-    document.getElementById('berita-isi').value = item.isi;
-    document.getElementById('berita-kat').value = item.kategori;
-    document.getElementById('berita-foto-url').value = item.foto || "";
-  }
-}
-
-// Sesuaikan Juga Fungsi Pembersih Form Bawaan Anda Khusus Kategori Berita
-function bukaFormFormulir(tipe) {
-  document.getElementById('form-' + tipe + '-block').classList.remove('hidden');
-  document.getElementById(tipe + '-row-num').value = "";
-  if(tipe === 'berita') { 
-    document.getElementById('berita-judul').value = ""; 
-    document.getElementById('berita-isi').value = ""; 
-    document.getElementById('berita-foto-url').value = ""; 
-  }
-  if(tipe === 'materi') { document.getElementById('materi-nama').value=""; document.getElementById('materi-link').value=""; document.getElementById('materi-deskripsi').value=""; }
-  if(tipe === 'surat') { document.getElementById('srt-nomor').value=""; document.getElementById('srt-judul').value=""; document.getElementById('srt-link').value=""; }
-  if(tipe === 'keuangan') { document.getElementById('keu-kat').value=""; document.getElementById('keu-jumlah').value=""; document.getElementById('keu-ket').value=""; }
-}
-    
+    function logoutApp() { location.reload(); }
   </script>
 </body>
 </html>
