@@ -10,16 +10,16 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @media print { body * { visibility: hidden; } #ijazah-print-area, #ijazah-print-area * { visibility: visible; } #ijazah-print-area { position: absolute; left: 0; top: 0; width: 100%; } }
-    #peta-box { height: 320px; width: 100%; border-radius: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+    #peta-box { height: 320px; width: 100%; border-radius: 1rem; }
   </style>
 </head>
 <body class="bg-base-200 min-h-screen font-sans text-base-content">
 
   <dialog id="modalPeta" class="modal">
     <div class="modal-box max-w-lg">
-      <h3 class="font-bold text-sm mb-3">📍 Lokasi Latihan Terpilih</h3>
+      <h3 class="font-bold text-sm mb-3">📍 Lokasi Ranting Latihan</h3>
       <div id="peta-box"></div>
-      <div class="modal-action"><button class="btn btn-sm btn-neutral" onclick="document.getElementById('modalPeta').close()">Tutup Peta</button></div>
+      <div class="modal-action"><button class="btn btn-sm btn-neutral" onclick="document.getElementById('modalPeta').close()">Tutup</button></div>
     </div>
   </dialog>
 
@@ -29,14 +29,14 @@
     <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50 px-4 md:px-8">
       <div class="flex-1"><a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="gantiTab('berita')">PERISAI DIRI</a></div>
       <div class="flex-none gap-4">
-        <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk / Daftar</button>
+        <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk Portal</button>
         <div id="user-profile-badge" class="dropdown dropdown-end hidden">
           <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online"><div class="w-10 rounded-full ring ring-error"><img id="user-avatar-img" src="" /></div></div>
           <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-neutral">
             <li><span id="user-menu-name" class="font-bold text-error"></span></li>
             <li><span id="user-menu-role" class="text-xs badge badge-ghost"></span></li>
             <div class="divider my-1"></div>
-            <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar</a></li>
+            <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar / Log Out</a></li>
           </ul>
         </div>
       </div>
@@ -44,15 +44,16 @@
 
     <div class="container mx-auto p-4 md:p-6 max-w-7xl">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
         <div class="space-y-4">
           <div class="card bg-base-100 shadow-xl p-3">
             <ul class="menu bg-base-100 rounded-box w-full space-y-1" id="main-menu-tabs">
               <li><button id="menu-berita" class="active font-bold" onclick="gantiTab('berita')">📰 Berita & Informasi</button></li>
-              <li><button id="menu-jadwal" onclick="gantiTab('jadwal')">📍 Tempat & Jadwal Latihan</button></li>
+              <li><button id="menu-jadwal" onclick="gantiTab('jadwal')">📍 Jadwal & Tempat Latihan</button></li>
               
               <span id="protected-menus" class="hidden space-y-1 mt-1 flex flex-col">
-                <li><button id="menu-materi" onclick="gantiTab('materi')">🥋 Materi Kurikulum</button></li>
-                <li><button id="menu-absensi" onclick="gantiTab('absensi')">📅 Presensi & Jurnal</button></li>
+                <li><button id="menu-profil" class="text-info font-bold" onclick="gantiTab('profil')">👤 Profil & Ganti Password</button></li>
+                <li><button id="menu-absensi" onclick="gantiTab('absensi')">📅 Presensi & Jurnal Log</button></li>
                 <li><button id="menu-ukt" onclick="gantiTab('ukt')">🏆 Ujian Tingkat (UKT)</button></li>
                 <li><button id="menu-anggota" class="text-error font-bold hidden" onclick="gantiTab('anggota')">👥 Manajemen Anggota</button></li>
               </span>
@@ -66,50 +67,75 @@
 
             <div id="view-berita" class="tab-view hidden space-y-4">
               <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="text-xl font-bold">📰 Berita Utama & Informasi</h2>
+                <h2 class="text-xl font-bold">📰 Berita Utama & Kegiatan</h2>
                 <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormBerita()">+ Buat Berita</button>
               </div>
+              
               <div id="form-berita-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
                 <input type="hidden" id="berita-row-num">
-                <input type="text" id="berita-judul" placeholder="Judul Berita" class="input input-bordered input-sm w-full">
-                <textarea id="berita-isi" placeholder="Isi berita..." class="textarea textarea-bordered textarea-sm w-full h-24"></textarea>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <input type="text" id="berita-judul" placeholder="Judul Berita" class="input input-bordered input-sm w-full">
+                  <input type="date" id="berita-tanggal" class="input input-bordered input-sm w-full">
+                </div>
+                <textarea id="berita-isi" placeholder="Tulis isi pengumuman lengkap..." class="textarea textarea-bordered textarea-sm w-full h-24"></textarea>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <select id="berita-kat" class="select select-bordered select-sm"><option value="Pengumuman">Pengumuman</option><option value="Kegiatan">Kegiatan</option></select>
                   <select id="berita-status" class="select select-bordered select-sm"><option value="Publish">Publish</option><option value="Draft">Draft</option></select>
-                  <input type="text" id="berita-foto-url" placeholder="Link Gambar Drive" class="input input-bordered input-sm">
+                  <input type="text" id="berita-foto-url" placeholder="Link Link Gambar Drive" class="input input-bordered input-sm">
                 </div>
-                <div class="flex justify-end gap-2"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-berita-block').classList.add('hidden')">Batal</button><button class="btn btn-sm btn-error text-white" onclick="simpanBeritaWeb()">Terbitkan</button></div>
+                <div class="flex justify-end gap-2"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-berita-block').classList.add('hidden')">Batal</button><button class="btn btn-sm btn-error text-white" onclick="simpanBeritaWeb()">Simpan Berita</button></div>
               </div>
               <div id="list-berita-render" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
             <div id="view-jadwal" class="tab-view hidden space-y-4">
-              <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="text-xl font-bold">📍 Tempat & Jadwal Latihan Resmi</h2>
-                <button class="btn btn-sm btn-neutral opsi-admin hidden" onclick="bukaFormJadwal()">+ Tambah Lokasi</button>
-              </div>
-              <div id="form-jadwal-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
-                <input type="hidden" id="jadwal-row-num">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <input type="text" id="jdw-tempat" placeholder="Nama Tempat/Ranting" class="input input-bordered input-sm">
-                  <input type="text" id="jdw-hari" placeholder="Hari (Contoh: Senin, Rabu)" class="input input-bordered input-sm">
-                  <input type="text" id="jdw-jam" placeholder="Jam Latihan (Contoh: 16:00 - Selesai)" class="input input-bordered input-sm">
-                  <input type="text" id="jdw-pic" placeholder="Nama PIC Pelatih" class="input input-bordered input-sm">
-                  <input type="text" id="jdw-kontak" placeholder="No WA PIC" class="input input-bordered input-sm">
-                  <input type="text" id="jdw-koordinat" placeholder="Koordinat: -7.123,111.456" class="input input-bordered input-sm">
-                </div>
-                <button class="btn btn-neutral btn-sm w-full" onclick="simpanJadwalWeb()">Simpan Jadwal</button>
-              </div>
+              <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">📍 Tempat & Jadwal Latihan Resmi</h2></div>
               <div class="overflow-x-auto"><table class="table table-zebra table-sm w-full">
-                <thead><tr class="bg-neutral text-white"><th>Tempat Ranting</th><th>Hari / Jam</th><th>PIC Pelatih</th><th>Kontak PIC</th><th>Peta</th><th class="opsi-admin hidden">Aksi</th></tr></thead>
+                <thead><tr class="bg-neutral text-white"><th>Tempat Ranting</th><th>Hari & Jam</th><th>PIC Pelatih</th><th>Kontak Pelatih</th><th>Peta Location</th></tr></thead>
                 <tbody id="list-jadwal-render"></tbody>
               </table></div>
             </div>
 
-            <div id="view-materi" class="tab-view hidden space-y-2"><div id="list-materi-render"></div></div>
-            <div id="view-absensi" class="tab-view hidden space-y-2"><div id="panel-pelatih-absen" class="hidden"></div><table class="table table-sm"><tbody id="list-absen-render"></tbody></table></div>
-            <div id="view-ukt" class="tab-view hidden space-y-2"><div class="tabs"></div><tbody id="list-ukt-render"></tbody><tbody id="massal-tbody-murid"></tbody></div>
-            <div id="view-anggota" class="tab-view hidden space-y-2"><tbody id="list-anggota-render"></tbody></div>
+            <div id="view-profil" class="tab-view hidden space-y-4">
+              <h2 class="text-xl font-bold border-b pb-2">👤 Pengaturan Profil & Keamanan Akun Anda</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-base-200 p-6 rounded-2xl">
+                <div class="form-control"><label class="label-text font-bold text-xs mb-1">Nama Lengkap</label><input type="text" id="prof-nama" class="input input-bordered input-sm font-bold"></div>
+                <div class="form-control"><label class="label-text font-bold text-xs mb-1">Tempat, Tanggal Lahir (TTL)</label><input type="text" id="prof-ttl" class="input input-bordered input-sm"></div>
+                <div class="form-control col-span-1 md:col-span-2"><label class="label-text font-bold text-xs mb-1">Link Tautan Foto Profil Anda (Google Drive)</label><input type="text" id="prof-foto" class="input input-bordered input-sm"></div>
+                <div class="divider col-span-1 md:col-span-2 my-0">GANTI PASSWORD SECURITY</div>
+                <div class="form-control col-span-1 md:col-span-2"><label class="label-text font-bold text-xs mb-1">Masukkan Kata Sandi Baru Anda</label><input type="text" id="prof-password" placeholder="Ketik kata sandi baru disini..." class="input input-bordered input-sm font-mono font-bold text-error"></div>
+                <button class="btn btn-info btn-block text-white font-bold col-span-1 md:col-span-2 mt-2" onclick="prosesSimpanProfilMandiri()">🔒 Simpan Perubahan Profil & Password</button>
+              </div>
+            </div>
+
+            <div id="view-anggota" class="tab-view hidden space-y-4">
+              <h2 class="text-xl font-bold border-b pb-2">👥 Modul Hak Akses Manajemen Anggota</h2>
+              
+              <div id="form-anggota-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
+                <input type="hidden" id="anggota-row-num">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <input type="text" id="agt-nama" placeholder="Nama" class="input input-bordered input-sm">
+                  <input type="email" id="agt-email" placeholder="Email" class="input input-bordered input-sm" disabled>
+                  <input type="text" id="agt-pass" placeholder="Password" class="input input-bordered input-sm">
+                  <select id="agt-role" class="select select-bordered select-sm"><option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option><option value="Admin Cabang">Admin Cabang</option></select>
+                  <input type="text" id="agt-ranting" placeholder="Ranting" class="input input-bordered input-sm">
+                  <select id="agt-tingkatan" class="select select-bordered select-sm"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option><option value="Terampil 1">Terampil 1</option></select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <input type="text" id="agt-ttl" placeholder="TTL" class="input input-bordered input-sm">
+                  <input type="text" id="agt-foto-url" placeholder="Link Foto" class="input input-bordered input-sm">
+                </div>
+                <button class="btn btn-sm btn-error text-white w-full" onclick="simpanAnggotaAdminWeb()">Terapkan Perubahan Anggota</button>
+              </div>
+              
+              <div class="overflow-x-auto"><table class="table table-sm align-middle w-full">
+                <thead><tr class="bg-neutral text-white"><th>Foto</th><th>Nama / TTL</th><th>Email</th><th>Hak Akses</th><th>Unit Ranting</th><th>Sabuk</th><th>Aksi</th></tr></thead>
+                <tbody id="list-anggota-render"></tbody>
+              </table></div>
+            </div>
+
+            <div id="view-absensi" class="tab-view hidden space-y-2"><div class="overflow-x-auto"><table class="table table-sm"><tbody id="list-absen-render"></tbody></table></div></div>
+            <div id="view-ukt" class="tab-view hidden space-y-2"><tbody id="list-ukt-render"></tbody></div>
 
           </div>
         </div>
@@ -117,12 +143,229 @@
     </div>
   </div>
 
-  <dialog id="modalAuth" class="modal"><div class="modal-box max-w-sm"><div id="block-login-form" class="space-y-3"><h3 class="font-bold text-center text-error">Masuk Portal</h3><input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full"><button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button></div></div></dialog>
+  <dialog id="modalAuth" class="modal"><div class="modal-box max-w-sm"><h3 class="font-bold text-center text-error mb-4">Masuk Portal</h3><div class="space-y-3"><input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full"><button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button></div></div></dialog>
 
-  <script src="api.js"></script>
-  <script src="auth.js"></script>
-  <script src="news.js"></script>
-  <script src="schedule.js"></script>
-  <script src="app.js"></script>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwkNSJZjXlGKS_JU0phZp6gYpqw627J-JeBAWZRpHrCwc2xaDiup2MtbOiFRLelmmyYoQ/exec";
+    
+    var currentTab = "berita";
+    var userAktif = null;
+    var rawDataStorage = { berita: [], jadwal: [], absensi: [], ukt: [], anggota: [] };
+    var mapInstance = null;
+
+    window.onload = function() {
+      cekSesiLokalSistem();
+      initLoadPublicModuleData();
+    };
+
+    function callAPI(payload, successCallback) {
+      document.getElementById('global-loader').classList.remove('hidden');
+      fetch(API_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(res => { 
+        document.getElementById('global-loader').classList.add('hidden'); 
+        if (res && res.sukses === false && res.error) { alert("🚨 Kendala Server Database: " + res.error); return; }
+        successCallback(res); 
+      })
+      .catch(err => { document.getElementById('global-loader').classList.add('hidden'); alert("❌ Gagal terhubung ke database."); });
+    }
+
+    function bersihLinkDrive(url) {
+      if (!url || typeof url !== 'string') return "";
+      if (url.includes("drive.google.com")) {
+        var fileId = "";
+        if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; } 
+        else if (url.includes("/d/")) { fileId = url.split("/d/")[1].split("/")[0]; }
+        if (fileId !== "") { return "https://lh3.googleusercontent.com/d/" + fileId; }
+      }
+      return url;
+    }
+
+    function initLoadPublicModuleData() {
+      var roleUser = userAktif ? userAktif.role : "Public";
+      callAPI({ action: 'getBerita', role: roleUser }, function(dataBerita) {
+        rawDataStorage.berita = dataBerita;
+        renderBeritaVisual(dataBerita);
+        callAPI({ action: 'getJadwal' }, function(dataJadwal) {
+          rawDataStorage.jadwal = dataJadwal;
+          renderJadwalVisual(dataJadwal);
+        });
+      });
+    }
+
+    function cekSesiLokalSistem() {
+      var dataLokal = localStorage.getItem('session_pd_user');
+      if (dataLokal) { terapkanSesiUI(JSON.parse(dataLokal)); loadDataTerproteksi(); }
+    }
+
+    function terapkanSesiUI(user) {
+      userAktif = user;
+      document.getElementById('btn-show-auth').classList.add('hidden');
+      document.getElementById('user-profile-badge').classList.remove('hidden');
+      document.getElementById('protected-menus').classList.remove('hidden');
+      document.getElementById('user-menu-name').innerText = user.nama;
+      document.getElementById('user-menu-role').innerText = user.role;
+      if (user.foto) document.getElementById('user-avatar-img').src = bersihLinkDrive(user.foto);
+      
+      // Inject data profil awal ke form profil mandiri
+      document.getElementById('prof-nama').value = user.nama;
+      document.getElementById('prof-ttl').value = user.ttl || "";
+      document.getElementById('prof-foto').value = user.foto || "";
+      document.getElementById('prof-password').value = ""; // dikosongkan demi keamanan
+
+      if (user.role.includes("Admin")) {
+        document.getElementById('menu-anggota').classList.remove('hidden');
+        document.querySelectorAll('.opsi-admin').forEach(el => el.classList.remove('hidden'));
+      }
+    }
+
+    function submitLogin() {
+      var email = document.getElementById('log-email').value; var pass = document.getElementById('log-pass').value;
+      callAPI({ action: 'login', email: email, pass: pass }, function(res) {
+        if (res.sukses) { document.getElementById('modalAuth').close(); localStorage.setItem('session_pd_user', JSON.stringify(res)); terapkanSesiUI(res); loadDataTerproteksi(); } 
+        else { alert(res.pesan); }
+      });
+    }
+
+    function logoutApp() { localStorage.removeItem('session_pd_user'); location.reload(); }
+
+    function loadDataTerproteksi() {
+      if(!userAktif) return;
+      callAPI({ action: 'fetchProtectedData', email: userAktif.email, role: userAktif.role }, function(res) {
+        rawDataStorage.berita = res.berita || []; rawDataStorage.jadwal = res.jadwal || [];
+        rawDataStorage.absensi = res.absensi || []; rawDataStorage.ukt = res.ukt || [];
+        if(userAktif.role.includes("Admin")) { rawDataStorage.anggota = res.anggota || []; }
+        prosesEngineData();
+      });
+    }
+
+    // ====================================================================
+    // LOGIKA MODUL BERITA (DENGAN TANGGAL DAN MANAJEMEN DRAFT)
+    // ====================================================================
+    function renderBeritaVisual(data) {
+      var container = document.getElementById('list-berita-render'); container.innerHTML = '';
+      var isAdmin = (userAktif && userAktif.role.includes("Admin"));
+      data.forEach(b => {
+        var imgClean = bersihLinkDrive(b.foto);
+        var imgHtml = imgClean ? `<img src="${imgClean}" class="w-full h-48 object-cover bg-base-300">` : '';
+        var txtIsi = b.isi.length > 140 ? `<span class="short-text">${b.isi.substring(0, 140)}...</span><span class="full-text hidden whitespace-pre-line">${b.isi}</span><button class="btn btn-link btn-xs p-0 text-error block font-bold mt-1" onclick="toggleReadMoreText(this)">lihat selengkapnya</button>` : `<span class="whitespace-pre-line">${b.isi}</span>`;
+        var badgeDraft = b.status === "Draft" ? `<div class="badge badge-warning text-[10px] font-bold">DRAFT</div>` : '';
+        var adminCtrl = isAdmin ? `<div class="card-actions justify-end border-t pt-2 mt-2"><button class="btn btn-xs btn-outline" onclick="editBeritaByRow(${b.rowNum})">📝 Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button></div>` : '';
+        container.innerHTML += `<div class="card bg-base-100 border border-base-300 overflow-hidden shadow-sm"><div class="card-body p-4"><h2 class="card-title text-sm font-bold">${b.judul} ${badgeDraft} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2><div class="text-[10px] opacity-60 flex justify-between border-b pb-1"><span>📅 ${b.tanggal}</span><span>✍️ Oleh: <b>${b.publisher}</b></span></div><div class="text-xs text-gray-600 mt-2">${txtIsi}</div>${adminCtrl}</div></div>`;
+      });
+    }
+
+    function toggleReadMoreText(btn) { var parent = btn.parentElement; var shortSpan = parent.querySelector('.short-text'); var fullSpan = parent.querySelector('.full-text'); if (shortSpan.classList.contains('hidden')) { shortSpan.classList.remove('hidden'); fullSpan.classList.add('hidden'); btn.innerText = "lihat selengkapnya"; } else { shortSpan.classList.add('hidden'); fullSpan.classList.remove('hidden'); btn.innerText = "sembunyikan"; } }
+    function bukaFormBerita() { document.getElementById('form-berita-block').classList.remove('hidden'); document.getElementById('berita-row-num').value = ""; document.getElementById('berita-judul').value = ""; document.getElementById('berita-isi').value = ""; document.getElementById('berita-tanggal').value = new Date().toISOString().substring(0,10); }
+    function editBeritaByRow(rowNum) { var item = rawDataStorage.berita.find(x => x.rowNum == rowNum); if (item) { document.getElementById('form-berita-block').classList.remove('hidden'); document.getElementById('berita-row-num').value = item.rowNum; document.getElementById('berita-judul').value = item.judul; document.getElementById('berita-isi').value = item.isi; document.getElementById('berita-tanggal').value = item.tanggal; document.getElementById('berita-kat').value = item.kategori; document.getElementById('berita-status').value = item.status; document.getElementById('berita-foto-url').value = item.foto || ""; } }
+    function simpanBeritaWeb() {
+      var d = { rowNum: document.getElementById('berita-row-num').value, judul: document.getElementById('berita-judul').value, isi: document.getElementById('berita-isi').value, tanggal: document.getElementById('berita-tanggal').value, kategori: document.getElementById('berita-kat').value, status: document.getElementById('berita-status').value, foto: document.getElementById('berita-foto-url').value, publisher: userAktif.nama };
+      callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-berita-block').classList.add('hidden'); loadDataTerproteksi(); });
+    }
+
+    // ====================================================================
+    // LOGIKA MODUL JADWAL LATIHAN
+    // ====================================================================
+    function renderJadwalVisual(data) {
+      var tbody = document.getElementById('list-jadwal-render'); tbody.innerHTML = '';
+      data.forEach(j => {
+        var gmapsUrl = j.koordinat ? `https://www.google.com/maps/search/?api=1&query=$${j.koordinat}` : `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(j.tempat + ' Perisai Diri')}`;
+        var noBersih = j.kontak.replace(/[^0-9]/g, ''); if (noBersih.startsWith('0')) noBersih = '62' + noBersih.substr(1);
+        var btnMap = j.koordinat ? `<button class="btn btn-xs btn-outline btn-error font-bold" onclick="bukaPetaPopup('${j.koordinat}', '${j.tempat}')">🗺️ Lihat Peta</button>` : '-';
+        tbody.innerHTML += `<tr class="text-xs"><td><a href="${gmapsUrl}" target="_blank" class="link link-hover text-error font-bold block">🏢 ${j.tempat}</a></td><td>📅 ${j.hari}<br>⏰ ${j.jam}</td><td><a href="https://wa.me/${noBersih}" target="_blank" class="link link-hover font-semibold">🥋 ${j.pic}</a></td><td><a href="https://wa.me/${noBersih}" target="_blank" class="link link-success font-bold">${j.kontak}</a></td><td>${btnMap}</td></tr>`;
+      });
+    }
+
+    function bukaPetaPopup(koordinatStr, namaTempat) {
+      document.getElementById('modalPeta').showModal(); var parts = koordinatStr.split(","); var lat = parseFloat(parts[0]); var lng = parseFloat(parts[1]);
+      setTimeout(function() {
+        if (mapInstance) mapInstance.remove();
+        mapInstance = L.map('peta-box').setView([lat, lng], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+        L.marker([lat, lng]).addTo(mapInstance).bindPopup(`<b>${namaTempat}</b>`).openPopup();
+      }, 300);
+    }
+
+    // ====================================================================
+    // FITUR PROFIL BIODATA MANDIRI & GANTI PASSWORD
+    // ====================================================================
+    function prosesSimpanProfilMandiri() {
+      var passBaru = document.getElementById('prof-password').value;
+      var d = {
+        nama: document.getElementById('prof-nama').value,
+        ttl: document.getElementById('prof-ttl').value,
+        foto: document.getElementById('prof-foto').value,
+        password: passBaru !== "" ? passBaru : userAktif.password // jika kosong, pertahankan yang lama
+      };
+      if (!d.nama) { alert("Nama lengkap tidak boleh kosong!"); return; }
+      
+      callAPI({ action: 'updateProfilMandiri', email: userAktif.email, data: d }, function(res) {
+        alert(res.pesan);
+        if (res.sukses) {
+          // Update data sesi lokal agar perubahan nama/foto langsung sinkron di UI
+          userAktif.nama = d.nama; userAktif.ttl = d.ttl; userAktif.foto = d.foto; userAktif.password = d.password;
+          localStorage.setItem('session_pd_user', JSON.stringify(userAktif));
+          terapkanSesiUI(userAktif);
+          loadDataTerproteksi();
+        }
+      });
+    }
+
+    // ====================================================================
+    // LOGIKA MODUL MANAJEMEN ANGGOTA BERJENJANG HAK AKSES
+    // ====================================================================
+    function renderAnggotaVisual(data) {
+      var tbody = document.getElementById('list-anggota-render'); tbody.innerHTML = '';
+      data.forEach(r => {
+        var picClean = bersihLinkDrive(r.foto);
+        var img = picClean ? `<img src="${picClean}" class="w-8 h-8 rounded-full object-cover">` : '<div class="w-8 h-8 bg-gray-300 rounded-full"></div>';
+        tbody.innerHTML += `<tr class="text-xs"><td>${img}</td><td><b>${r.nama}</b><br><span class="opacity-50 text-[10px]">${r.ttl||'-'}</span></td><td>${r.email}</td><td><span class="badge badge-sm badge-info text-white">${r.role}</span></td><td><b>${r.ranting}</b></td><td>${r.tingkatan}</td><td><button class="btn btn-xs btn-outline btn-warning" onclick="editAnggotaByRow(${r.rowNum})">📝 Kelola</button></td></tr>`;
+      });
+    }
+
+    function editAnggotaByRow(rowNum) {
+      var item = rawDataStorage.anggota.find(x => x.rowNum == rowNum);
+      if(item) {
+        document.getElementById('form-anggota-block').classList.remove('hidden');
+        document.getElementById('anggota-row-num').value = item.rowNum; document.getElementById('agt-nama').value = item.nama;
+        document.getElementById('agt-email').value = item.email; document.getElementById('agt-pass').value = item.password;
+        document.getElementById('agt-role').value = item.role; document.getElementById('agt-ranting').value = item.ranting;
+        document.getElementById('agt-tingkatan').value = item.tingkatan; document.getElementById('agt-foto-url').value = item.foto || "";
+        document.getElementById('agt-ttl').value = item.ttl || "";
+        
+        // SECURITY GATE LOCK: Jika yang masuk Admin Ranting, kunci kolom edit Ranting ke rantingnya saja
+        if(userAktif.role === "Admin Ranting") {
+          document.getElementById('agt-ranting').disabled = true;
+          document.getElementById('agt-role').innerHTML = '<option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option>';
+        } else {
+          document.getElementById('agt-ranting').disabled = false;
+        }
+      }
+    }
+
+    function simpanAnggotaAdminWeb() {
+      var d = { rowNum: document.getElementById('anggota-row-num').value, email: document.getElementById('agt-email').value, password: document.getElementById('agt-pass').value, role: document.getElementById('agt-role').value, ranting: document.getElementById('agt-ranting').value, tingkatan: document.getElementById('agt-tingkatan').value, foto: document.getElementById('agt-foto-url').value, ttl: document.getElementById('agt-ttl').value };
+      callAPI({ action: 'simpanAnggotaAdmin', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-anggota-block').classList.add('hidden'); loadDataTerproteksi(); });
+    }
+
+    // LAYER ROUTER DRIVER WEB
+    function gantiTab(tabName) {
+      currentTab = tabName;
+      document.querySelectorAll('#main-menu-tabs button').forEach(b => b.classList.remove('active', 'font-bold'));
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+      if(document.getElementById('menu-' + tabName)) document.getElementById('menu-' + tabName).classList.add('active', 'font-bold');
+      if(document.getElementById('view-' + tabName)) document.getElementById('view-' + tabName).classList.remove('hidden');
+      prosesEngineData();
+    }
+
+    function prosesEngineData() {
+      var targetData = rawDataStorage[currentTab] || [];
+      if (currentTab === 'berita') renderBeritaVisual(targetData);
+      else if (currentTab === 'jadwal') renderJadwalVisual(targetData);
+      else if (currentTab === 'anggota') renderAnggotaVisual(targetData);
+    }
+
+    function hapusRowUniversal(sheetName, rowNum) { if(confirm("Hapus baris data dari database?")) { callAPI({ action: 'deleteRow', email: userAktif.email, sheetName: sheetName, rowNum: rowNum }, function(msg) { alert(msg); loadDataTerproteksi(); }); } }
+    function bukaModalAuth() { document.getElementById('modalAuth').showModal(); }
+  </script>
 </body>
 </html>
