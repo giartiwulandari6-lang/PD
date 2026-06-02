@@ -13,8 +13,8 @@
         .navbar-brand, .nav-link { color: white !important; }
         .btn-merah { background: var(--merah); color: white; border-radius: 30px; }
         .btn-merah:hover { background: var(--merah-dark); color: white; }
-        .card, .jadwal-item, .berita-card { border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: 0.3s; }
-        .jadwal-item { border-left: 5px solid var(--merah); margin-bottom: 15px; padding: 15px; background: white; }
+        .card, .jadwal-item, .berita-card { border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: 0.3s; background: white; }
+        .jadwal-item { border-left: 5px solid var(--merah); margin-bottom: 15px; padding: 15px; }
         .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--merah); }
         .stat-number { font-size: 2rem; font-weight: bold; color: var(--merah); }
         .page { display: none; }
@@ -27,6 +27,7 @@
         .sidebar-menu a { display: block; padding: 10px; color: #333; text-decoration: none; border-radius: 10px; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--merah); color: white; }
         footer { background: var(--merah-dark); color: white; padding: 20px; text-align: center; margin-top: 40px; }
+        .berita-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px 15px 0 0; }
         @media (max-width: 768px) { .sidebar { margin-bottom: 20px; } }
     </style>
 </head>
@@ -83,7 +84,11 @@
     <div id="login" class="page">
         <div class="card p-4 mx-auto" style="max-width: 400px;">
             <h3 class="text-center">Login</h3>
-            <form id="loginForm"><div class="mb-3"><label>Email</label><input type="email" id="loginEmail" class="form-control" required></div><div class="mb-3"><label>Password</label><input type="password" id="loginPassword" class="form-control" required></div><button type="submit" class="btn btn-merah w-100">Login</button></form>
+            <form id="loginForm">
+                <div class="mb-3"><label>Email</label><input type="email" id="loginEmail" class="form-control" required></div>
+                <div class="mb-3"><label>Password</label><input type="password" id="loginPassword" class="form-control" required></div>
+                <button type="submit" class="btn btn-merah w-100">Login</button>
+            </form>
             <p class="text-center mt-3">Belum punya akun? <a href="#" onclick="showRegister()">Daftar</a></p>
         </div>
     </div>
@@ -91,19 +96,40 @@
     <div id="register" class="page">
         <div class="card p-4 mx-auto" style="max-width: 500px;">
             <h3 class="text-center">Registrasi</h3>
-            <form id="registerForm"><div class="mb-3"><label>Nama</label><input type="text" id="regNama" class="form-control" required></div><div class="mb-3"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div><div class="mb-3"><label>Password</label><input type="password" id="regPassword" class="form-control" required></div><div class="mb-3"><label>Konfirmasi Password</label><input type="password" id="regConfirm" class="form-control" required></div><div class="mb-3"><label>No HP</label><input type="text" id="regNoHP" class="form-control"></div><div class="mb-3"><label>Ranting</label><select id="regRanting" class="form-select"><option value="">Pilih Ranting</option><option>Bojonegoro</option><option>MIN 1 Bojonegoro</option><option>Dander</option><option>Kalitidu</option><option>Trucuk</option><option>Ngraho</option><option>Kedungadem</option></select></div><div class="mb-3"><label>Tingkatan</label><select id="regTingkatan" class="form-select"><option>Dasar 1</option><option>Dasar 2</option><option>Cakel</option><option>Putih</option></select></div><button type="submit" class="btn btn-merah w-100">Daftar</button></form>
+            <form id="registerForm">
+                <div class="mb-3"><label>Nama</label><input type="text" id="regNama" class="form-control" required></div>
+                <div class="mb-3"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div>
+                <div class="mb-3"><label>Password</label><input type="password" id="regPassword" class="form-control" required></div>
+                <div class="mb-3"><label>Konfirmasi Password</label><input type="password" id="regConfirm" class="form-control" required></div>
+                <div class="mb-3"><label>No HP</label><input type="text" id="regNoHP" class="form-control"></div>
+                <div class="mb-3"><label>Ranting</label>
+                    <select id="regRanting" class="form-select">
+                        <option value="">Pilih Ranting</option>
+                        <option>Bojonegoro</option><option>MIN 1 Bojonegoro</option><option>Dander</option>
+                        <option>Kalitidu</option><option>Trucuk</option><option>Ngraho</option><option>Kedungadem</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label>Tingkatan</label>
+                    <select id="regTingkatan" class="form-select">
+                        <option>Dasar 1</option><option>Dasar 2</option><option>Cakel</option><option>Putih</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-merah w-100">Daftar</button>
+            </form>
             <p class="text-center mt-3">Sudah punya akun? <a href="#" onclick="showLogin()">Login</a></p>
         </div>
     </div>
 </div>
 <footer><p>&copy; 2025 Perisai Diri Bojonegoro</p></footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // ==================== KONFIGURASI API ====================
-    const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbycC4PQmTW71QxO6HJuAFXxWsZ2wTfZSLfHYcgMImmP_olTO7jfNAgki2qTa0vO4849Tw/exec'; // GANTI DENGAN URL WEB APP ANDA
+    // GANTI DENGAN URL WEB APP ANDA YANG SUDAH DI-DEPLOY
+    const API_BASE_URL = 'https://script.google.com/macros/s/AKfycby_oui1P3y3E5Tw8ZKr1WQE-Ls0jU43mpj383QHFgW6YNqoQw_dItXleDUEb3gjYb1clA/exec';
 
-    // Helper untuk fetch POST
+    // Helper fetch POST
     async function callAPI(action, data = {}) {
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
@@ -120,7 +146,6 @@
         return await response.json();
     }
 
-    // Global state
     let currentUser = null;
     let authToken = localStorage.getItem('authToken');
 
@@ -128,11 +153,11 @@
     function showPage(page) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(page).classList.add('active');
-        if (page === 'home') loadHome();
-        if (page === 'berita') loadAllBerita();
-        if (page === 'jadwal') loadJadwal();
-        if (page === 'materi') loadMateri();
-        if (page === 'dashboard' && currentUser) loadDashboard('profil');
+        if (page === 'home') { loadHome(); }
+        if (page === 'berita') { loadAllBerita(); }
+        if (page === 'jadwal') { loadJadwal(); }
+        if (page === 'materi') { loadMateri(); }
+        if (page === 'dashboard' && currentUser) { loadDashboard('profil'); }
     }
 
     // ==================== LOAD PUBLIC DATA ====================
@@ -152,35 +177,72 @@
             <div class="col-md-3"><div class="stat-card"><div class="stat-number">${res.data.uktLulus||0}</div><div>UKT Lulus</div></div></div>`;
     }
     function displayBeritaTerbaru(res) {
-        let html=''; if(res.success) res.data.slice(0,3).forEach(b=>{ html+=`<div class="col-md-4"><div class="berita-card p-3"><h5>${b.Judul}</h5><small>${new Date(b.Tanggal).toLocaleDateString()}</small><p>${(b.Isi||'').substring(0,100)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div>`; });
-        document.getElementById('beritaTerbaruContainer').innerHTML=html;
+        let html=''; 
+        if(res.success && res.data.length) {
+            res.data.slice(0,3).forEach(b => {
+                const foto = b.Foto_Berita ? `<img src="${b.Foto_Berita}" class="berita-img" onerror="this.style.display='none'">` : '';
+                html += `<div class="col-md-4 mb-3"><div class="berita-card">${foto}<div class="p-3"><h5>${b.Judul||'Tanpa Judul'}</h5><small>${new Date(b.Tanggal).toLocaleDateString()}</small><p>${(b.Isi||'').substring(0,100)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div></div>`;
+            });
+        } else html = '<p class="text-muted">Belum ada berita</p>';
+        document.getElementById('beritaTerbaruContainer').innerHTML = html;
     }
     function displayJadwalHome(res) {
-        let html=''; if(res.success) res.data.forEach(j=>{ html+=`<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal} | ${j.Lokasi}</p></div></div>`; });
-        document.getElementById('jadwalHomeContainer').innerHTML=html;
+        let html=''; 
+        if(res.success && res.data.length) {
+            res.data.forEach(j => {
+                html += `<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal} | ${j.Lokasi}</p></div></div>`;
+            });
+        } else html = '<p class="text-muted">Belum ada jadwal</p>';
+        document.getElementById('jadwalHomeContainer').innerHTML = html;
     }
     async function loadAllBerita() {
         const res = await callGET('getBerita');
-        let html=''; if(res.success) res.data.forEach(b=>{ html+=`<div class="col-md-6 mb-3"><div class="berita-card p-3"><h5>${b.Judul}</h5><small>${new Date(b.Tanggal).toLocaleDateString()}</small><p>${(b.Isi||'').substring(0,150)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div>`; });
-        document.getElementById('semuaBeritaContainer').innerHTML=html;
+        let html=''; 
+        if(res.success && res.data.length) {
+            res.data.forEach(b => {
+                const foto = b.Foto_Berita ? `<img src="${b.Foto_Berita}" class="berita-img" onerror="this.style.display='none'">` : '';
+                html += `<div class="col-md-6 mb-3"><div class="berita-card">${foto}<div class="p-3"><h5>${b.Judul||'Tanpa Judul'}</h5><small>${new Date(b.Tanggal).toLocaleDateString()} | ${b.publisher||'Admin'}</small><p>${(b.Isi||'').substring(0,150)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div></div>`;
+            });
+        } else html = '<p class="text-muted">Belum ada berita</p>';
+        document.getElementById('semuaBeritaContainer').innerHTML = html;
     }
     async function loadJadwal() {
         const res = await callGET('getJadwal');
-        let html=''; if(res.success) res.data.forEach(j=>{ html+=`<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal}<br><i class="fas fa-map-marker-alt"></i> ${j.Lokasi}</p>${j.pic?`<p>Penanggung Jawab: ${j.pic}</p>`:''}</div></div>`; });
-        document.getElementById('jadwalContainer').innerHTML=html;
+        let html=''; 
+        if(res.success && res.data.length) {
+            res.data.forEach(j => {
+                html += `<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal}<br><i class="fas fa-map-marker-alt"></i> ${j.Lokasi}</p>${j.pic?`<p>Penanggung Jawab: ${j.pic}</p>`:''}</div></div>`;
+            });
+        } else html = '<p class="text-muted">Belum ada jadwal</p>';
+        document.getElementById('jadwalContainer').innerHTML = html;
     }
     async function loadMateri() {
         const res = await callGET('getMateri');
-        let html=''; if(res.success) res.data.forEach(m=>{ html+=`<div class="col-md-4 mb-3"><div class="card p-3"><h5>${m.Nama_Materi}</h5><p>${m.Deskripsi||''}</p>${m.Link_Video?`<a href="${m.Link_Video}" target="_blank" class="btn btn-sm btn-merah">Lihat Video</a>`:''}</div></div>`; });
-        document.getElementById('materiContainer').innerHTML=html;
+        let html=''; 
+        if(res.success && res.data.length) {
+            res.data.forEach(m => {
+                html += `<div class="col-md-4 mb-3"><div class="card p-3"><h5>${m.Nama_Materi}</h5><p>${m.Deskripsi||''}</p>${m.Link_Video?`<a href="${m.Link_Video}" target="_blank" class="btn btn-sm btn-merah">Lihat Video</a>`:''}</div></div>`;
+            });
+        } else html = '<p class="text-muted">Belum ada materi</p>';
+        document.getElementById('materiContainer').innerHTML = html;
     }
     async function showDetail(id) {
-        const res = await callGET('getBerita', { id }); // butuh fungsi getBeritaById di backend? sementara pakai getBerita lalu filter
-        // Untuk sederhana, kita tampilkan dengan data yang sudah ada. Bisa juga buat endpoint getBeritaById.
-        Swal.fire({ title: 'Detail', text: 'Fitur detail berita sedang dikembangkan', confirmButtonColor:'#DC2626' });
+        // Untuk detail berita, kita tampilkan dengan data yang sudah ada (cari dari array)
+        const res = await callGET('getBerita');
+        if(res.success) {
+            const berita = res.data.find(b => b.ID_Berita == id);
+            if(berita) {
+                Swal.fire({
+                    title: berita.Judul,
+                    html: `<div class="text-center">${berita.Foto_Berita ? `<img src="${berita.Foto_Berita}" style="max-width:100%; border-radius:10px; margin-bottom:15px;">` : ''}<p>${new Date(berita.Tanggal).toLocaleDateString()}</p><div style="text-align:left">${berita.Isi}</div></div>`,
+                    confirmButtonColor: '#DC2626',
+                    width: '800px'
+                });
+            } else Swal.fire('Error', 'Berita tidak ditemukan', 'error');
+        }
     }
 
-    // ==================== AUTH ====================
+    // ==================== AUTHENTICATION ====================
     function showLogin() { showPage('login'); }
     function showRegister() { showPage('register'); }
     document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
@@ -193,8 +255,8 @@
             updateUI();
             showPage('dashboard');
             loadDashboard('profil');
-            Swal.fire('Sukses','Login berhasil','success');
-        } else Swal.fire('Gagal',res.message,'error');
+            Swal.fire('Sukses', 'Login berhasil', 'success');
+        } else Swal.fire('Gagal', res.message, 'error');
     });
     document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -211,8 +273,8 @@
             CreatedAt: new Date().toISOString()
         };
         const res = await callAPI('register', { userData });
-        if(res.success) { Swal.fire('Sukses',res.message,'success'); showLogin(); }
-        else Swal.fire('Gagal',res.message,'error');
+        if(res.success) { Swal.fire('Sukses', res.message, 'success'); showLogin(); }
+        else Swal.fire('Gagal', res.message, 'error');
     });
     async function logout() {
         if(authToken) await callAPI('logout', { token: authToken });
@@ -221,6 +283,7 @@
         currentUser = null;
         updateUI();
         showPage('home');
+        loadHome();
     }
     async function updateUI() {
         const nav = document.getElementById('userNav');
@@ -266,10 +329,10 @@
                 const updated = {};
                 for(let [k,v] of fd) updated[k] = v;
                 const res2 = await callAPI('updateProfile', { email: currentUser.email, updatedData: updated, token: authToken });
-                if(res2.success) { Swal.fire('Sukses',res2.message,'success'); loadProfil(); }
-                else Swal.fire('Error',res2.message,'error');
+                if(res2.success) { Swal.fire('Sukses', res2.message, 'success'); loadProfil(); }
+                else Swal.fire('Error', res2.message, 'error');
             });
-        }
+        } else cont.innerHTML = '<p>Gagal memuat profil</p>';
     }
 
     async function loadAnggota() {
@@ -277,12 +340,12 @@
         cont.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
         const res = await callAPI('getAnggota', { ranting: '', token: authToken });
         if(res.success && res.data.length) {
-            let html = '<table class="table table-bordered"><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Ranting</th><th>Tingkatan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>';
+            let html = '<div class="table-responsive"><table class="table table-bordered"><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Ranting</th><th>Tingkatan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>';
             res.data.forEach(a => {
                 html += `<tr><td>${a.ID_Anggota||'-'}</td><td>${a.Nama||'-'}</td><td>${a.Email||'-'}</td><td>${a.Ranting||'-'}</td><td>${a.Tingkatan||'-'}</td><td>${a.Status_Aktif||'Aktif'}</td>
-                <td><button class="btn btn-sm btn-warning" onclick="editAnggota('${a.ID_Anggota}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteAnggota('${a.ID_Anggota}')">Hapus</button></td></tr>`;
+                <td><button class="btn btn-sm btn-warning me-1" onclick="editAnggota('${a.ID_Anggota}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteAnggota('${a.ID_Anggota}')">Hapus</button></td></tr>`;
             });
-            html += '</tbody></table>';
+            html += '</tbody></table></div>';
             cont.innerHTML = html;
         } else cont.innerHTML = '<p>Tidak ada data anggota</p>';
     }
@@ -296,8 +359,8 @@
             const data = {};
             for(let [k,v] of fd) data[k] = v;
             const res = await callAPI('addAnggota', { anggotaData: data, token: authToken });
-            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadDashboard('anggota'); }
-            else Swal.fire('Error',res.message,'error');
+            if(res.success) { Swal.fire('Sukses', res.message, 'success'); loadDashboard('anggota'); }
+            else Swal.fire('Error', res.message, 'error');
         });
     }
 
@@ -309,16 +372,16 @@
         });
         if(formValues) {
             const res = await callAPI('updateAnggota', { idAnggota: id, updatedData: formValues, token: authToken });
-            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadAnggota(); }
-            else Swal.fire('Error',res.message,'error');
+            if(res.success) { Swal.fire('Sukses', res.message, 'success'); loadAnggota(); }
+            else Swal.fire('Error', res.message, 'error');
         }
     };
     window.deleteAnggota = async (id) => {
         const confirm = await Swal.fire({ title:'Yakin?', text:'Anggota akan dinonaktifkan', icon:'warning', showCancelButton:true });
         if(confirm.isConfirmed) {
             const res = await callAPI('deleteAnggota', { idAnggota: id, token: authToken });
-            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadAnggota(); }
-            else Swal.fire('Error',res.message,'error');
+            if(res.success) { Swal.fire('Sukses', res.message, 'success'); loadAnggota(); }
+            else Swal.fire('Error', res.message, 'error');
         }
     };
 
@@ -327,13 +390,13 @@
         cont.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
         const res = await callAPI('getUKT', { email: currentUser.email, token: authToken });
         if(res.success) {
-            let html = `<div class="card p-4"><h4>Riwayat UKT</h4><button class="btn btn-merah mb-3" onclick="daftarUKT()">Daftar UKT Baru</button><table class="table"><thead><tr><th>ID</th><th>Tingkatan Tujuan</th><th>Tanggal</th><th>Status</th></tr></thead><tbody>`;
+            let html = `<div class="card p-4"><h4>Riwayat UKT</h4><button class="btn btn-merah mb-3" onclick="daftarUKT()">Daftar UKT Baru</button><div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Tingkatan Tujuan</th><th>Tanggal</th><th>Status</th></tr></thead><tbody>`;
             res.data.forEach(u => {
                 html += `<tr><td>${u.ID_UKT}</td><td>${u.Tingkatan_Tujuan}</td><td>${new Date(u.Tanggal_Pelaksanaan).toLocaleDateString()}</td><td>${u.Status_Kelulusan||'Menunggu'}</td></tr>`;
             });
-            html += `</tbody></table></div>`;
+            html += `</tbody></table></div></div>`;
             cont.innerHTML = html;
-        }
+        } else cont.innerHTML = '<p>Gagal memuat UKT</p>';
     }
 
     window.daftarUKT = async () => {
@@ -345,8 +408,8 @@
         });
         if(tingkatan) {
             const res = await callAPI('addUKT', { uktData: { Tingkatan_Tujuan: tingkatan }, token: authToken });
-            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadUKT(); }
-            else Swal.fire('Error',res.message,'error');
+            if(res.success) { Swal.fire('Sukses', res.message, 'success'); loadUKT(); }
+            else Swal.fire('Error', res.message, 'error');
         }
     };
 
