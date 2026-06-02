@@ -1,371 +1,372 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Resmi Kelatnas Indonesia Perisai Diri</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    @media print { body * { visibility: hidden; } #ijazah-print-area, #ijazah-print-area * { visibility: visible; } #ijazah-print-area { position: absolute; left: 0; top: 0; width: 100%; } }
-    #peta-box { height: 320px; width: 100%; border-radius: 1rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perisai Diri Bojonegoro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --merah: #DC2626; --merah-dark: #991B1B; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; }
+        .navbar { background: var(--merah) !important; }
+        .navbar-brand, .nav-link { color: white !important; }
+        .btn-merah { background: var(--merah); color: white; border-radius: 30px; }
+        .btn-merah:hover { background: var(--merah-dark); color: white; }
+        .card, .jadwal-item, .berita-card { border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: 0.3s; }
+        .jadwal-item { border-left: 5px solid var(--merah); margin-bottom: 15px; padding: 15px; background: white; }
+        .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--merah); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: var(--merah); }
+        .page { display: none; }
+        .page.active { display: block; }
+        .loading { text-align: center; padding: 50px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--merah); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .profile-img { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid var(--merah); }
+        .sidebar { background: white; border-radius: 15px; padding: 20px; }
+        .sidebar-menu a { display: block; padding: 10px; color: #333; text-decoration: none; border-radius: 10px; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--merah); color: white; }
+        footer { background: var(--merah-dark); color: white; padding: 20px; text-align: center; margin-top: 40px; }
+        @media (max-width: 768px) { .sidebar { margin-bottom: 20px; } }
+    </style>
 </head>
-<body class="bg-base-200 min-h-screen font-sans text-base-content">
-
-  <dialog id="modalPeta" class="modal">
-    <div class="modal-box max-w-lg">
-      <h3 class="font-bold text-sm mb-3">📍 Lokasi Ranting Latihan</h3>
-      <div id="peta-box"></div>
-      <div class="modal-action"><button class="btn btn-sm btn-neutral" onclick="document.getElementById('modalPeta').close()">Tutup</button></div>
-    </div>
-  </dialog>
-
-  <div id="public-verification-layer" class="container mx-auto max-w-xl p-4 my-6 hidden"></div>
-
-  <div id="core-application-wrapper" class="block">
-    <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50 px-4 md:px-8">
-      <div class="flex-1"><a class="text-xl font-bold tracking-widest text-error cursor-pointer" onclick="gantiTab('berita')">PERISAI DIRI</a></div>
-      <div class="flex-none gap-4">
-        <button id="btn-show-auth" class="btn btn-error btn-sm font-bold text-white shadow" onclick="bukaModalAuth()">Masuk Portal</button>
-        <div id="user-profile-badge" class="dropdown dropdown-end hidden">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online"><div class="w-10 rounded-full ring ring-error"><img id="user-avatar-img" src="" /></div></div>
-          <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-neutral">
-            <li><span id="user-menu-name" class="font-bold text-error"></span></li>
-            <li><span id="user-menu-role" class="text-xs badge badge-ghost"></span></li>
-            <div class="divider my-1"></div>
-            <li><a onclick="logoutApp()" class="text-red-600 font-semibold">Keluar / Log Out</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="container mx-auto p-4 md:p-6 max-w-7xl">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
-        <div class="space-y-4">
-          <div class="card bg-base-100 shadow-xl p-3">
-            <ul class="menu bg-base-100 rounded-box w-full space-y-1" id="main-menu-tabs">
-              <li><button id="menu-berita" class="active font-bold" onclick="gantiTab('berita')">📰 Berita & Informasi</button></li>
-              <li><button id="menu-jadwal" onclick="gantiTab('jadwal')">📍 Jadwal & Tempat Latihan</button></li>
-              
-              <span id="protected-menus" class="hidden space-y-1 mt-1 flex flex-col">
-                <li><button id="menu-profil" class="text-info font-bold" onclick="gantiTab('profil')">👤 Profil & Ganti Password</button></li>
-                <li><button id="menu-absensi" onclick="gantiTab('absensi')">📅 Presensi & Jurnal Log</button></li>
-                <li><button id="menu-ukt" onclick="gantiTab('ukt')">🏆 Ujian Tingkat (UKT)</button></li>
-                <li><button id="menu-anggota" class="text-error font-bold hidden" onclick="gantiTab('anggota')">👥 Manajemen Anggota</button></li>
-              </span>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#" onclick="showPage('home')"><i class="fas fa-shield-alt me-2"></i>Perisai Diri Bojonegoro</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('home')">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('berita')">Berita</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('jadwal')">Jadwal</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('materi')">Materi</a></li>
             </ul>
-          </div>
+            <div id="userNav" class="ms-3"></div>
         </div>
-
-        <div class="lg:col-span-3">
-          <div class="card bg-base-100 shadow-xl p-6 min-h-[65vh]">
-            <div id="global-loader" class="text-center py-10 hidden"><span class="loading loading-spinner loading-lg text-error"></span></div>
-
-            <div id="view-berita" class="tab-view hidden space-y-4">
-              <div class="flex justify-between items-center border-b pb-3">
-                <h2 class="text-xl font-bold">📰 Berita Utama & Kegiatan</h2>
-                <button class="btn btn-sm btn-error text-white opsi-admin hidden" onclick="bukaFormBerita()">+ Buat Berita</button>
-              </div>
-              
-              <div id="form-berita-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
-                <input type="hidden" id="berita-row-num">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <input type="text" id="berita-judul" placeholder="Judul Berita" class="input input-bordered input-sm w-full">
-                  <input type="date" id="berita-tanggal" class="input input-bordered input-sm w-full">
-                </div>
-                <textarea id="berita-isi" placeholder="Tulis isi pengumuman lengkap..." class="textarea textarea-bordered textarea-sm w-full h-24"></textarea>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <select id="berita-kat" class="select select-bordered select-sm"><option value="Pengumuman">Pengumuman</option><option value="Kegiatan">Kegiatan</option></select>
-                  <select id="berita-status" class="select select-bordered select-sm"><option value="Publish">Publish</option><option value="Draft">Draft</option></select>
-                  <input type="text" id="berita-foto-url" placeholder="Link Link Gambar Drive" class="input input-bordered input-sm">
-                </div>
-                <div class="flex justify-end gap-2"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('form-berita-block').classList.add('hidden')">Batal</button><button class="btn btn-sm btn-error text-white" onclick="simpanBeritaWeb()">Simpan Berita</button></div>
-              </div>
-              <div id="list-berita-render" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-
-            <div id="view-jadwal" class="tab-view hidden space-y-4">
-              <div class="flex justify-between items-center border-b pb-3"><h2 class="text-xl font-bold">📍 Tempat & Jadwal Latihan Resmi</h2></div>
-              <div class="overflow-x-auto"><table class="table table-zebra table-sm w-full">
-                <thead><tr class="bg-neutral text-white"><th>Tempat Ranting</th><th>Hari & Jam</th><th>PIC Pelatih</th><th>Kontak Pelatih</th><th>Peta Location</th></tr></thead>
-                <tbody id="list-jadwal-render"></tbody>
-              </table></div>
-            </div>
-
-            <div id="view-profil" class="tab-view hidden space-y-4">
-              <h2 class="text-xl font-bold border-b pb-2">👤 Pengaturan Profil & Keamanan Akun Anda</h2>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-base-200 p-6 rounded-2xl">
-                <div class="form-control"><label class="label-text font-bold text-xs mb-1">Nama Lengkap</label><input type="text" id="prof-nama" class="input input-bordered input-sm font-bold"></div>
-                <div class="form-control"><label class="label-text font-bold text-xs mb-1">Tempat, Tanggal Lahir (TTL)</label><input type="text" id="prof-ttl" class="input input-bordered input-sm"></div>
-                <div class="form-control col-span-1 md:col-span-2"><label class="label-text font-bold text-xs mb-1">Link Tautan Foto Profil Anda (Google Drive)</label><input type="text" id="prof-foto" class="input input-bordered input-sm"></div>
-                <div class="divider col-span-1 md:col-span-2 my-0">GANTI PASSWORD SECURITY</div>
-                <div class="form-control col-span-1 md:col-span-2"><label class="label-text font-bold text-xs mb-1">Masukkan Kata Sandi Baru Anda</label><input type="text" id="prof-password" placeholder="Ketik kata sandi baru disini..." class="input input-bordered input-sm font-mono font-bold text-error"></div>
-                <button class="btn btn-info btn-block text-white font-bold col-span-1 md:col-span-2 mt-2" onclick="prosesSimpanProfilMandiri()">🔒 Simpan Perubahan Profil & Password</button>
-              </div>
-            </div>
-
-            <div id="view-anggota" class="tab-view hidden space-y-4">
-              <h2 class="text-xl font-bold border-b pb-2">👥 Modul Hak Akses Manajemen Anggota</h2>
-              
-              <div id="form-anggota-block" class="bg-base-200 p-4 rounded-xl space-y-2 hidden">
-                <input type="hidden" id="anggota-row-num">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <input type="text" id="agt-nama" placeholder="Nama" class="input input-bordered input-sm">
-                  <input type="email" id="agt-email" placeholder="Email" class="input input-bordered input-sm" disabled>
-                  <input type="text" id="agt-pass" placeholder="Password" class="input input-bordered input-sm">
-                  <select id="agt-role" class="select select-bordered select-sm"><option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option><option value="Admin Cabang">Admin Cabang</option></select>
-                  <input type="text" id="agt-ranting" placeholder="Ranting" class="input input-bordered input-sm">
-                  <select id="agt-tingkatan" class="select select-bordered select-sm"><option value="Dasar 1">Dasar 1</option><option value="Dasar 2">Dasar 2</option><option value="Terampil 1">Terampil 1</option></select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <input type="text" id="agt-ttl" placeholder="TTL" class="input input-bordered input-sm">
-                  <input type="text" id="agt-foto-url" placeholder="Link Foto" class="input input-bordered input-sm">
-                </div>
-                <button class="btn btn-sm btn-error text-white w-full" onclick="simpanAnggotaAdminWeb()">Terapkan Perubahan Anggota</button>
-              </div>
-              
-              <div class="overflow-x-auto"><table class="table table-sm align-middle w-full">
-                <thead><tr class="bg-neutral text-white"><th>Foto</th><th>Nama / TTL</th><th>Email</th><th>Hak Akses</th><th>Unit Ranting</th><th>Sabuk</th><th>Aksi</th></tr></thead>
-                <tbody id="list-anggota-render"></tbody>
-              </table></div>
-            </div>
-
-            <div id="view-absensi" class="tab-view hidden space-y-2"><div class="overflow-x-auto"><table class="table table-sm"><tbody id="list-absen-render"></tbody></table></div></div>
-            <div id="view-ukt" class="tab-view hidden space-y-2"><tbody id="list-ukt-render"></tbody></div>
-
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+</nav>
 
-  <dialog id="modalAuth" class="modal"><div class="modal-box max-w-sm"><h3 class="font-bold text-center text-error mb-4">Masuk Portal</h3><div class="space-y-3"><input type="email" id="log-email" placeholder="Email" class="input input-bordered input-sm w-full"><input type="password" id="log-pass" placeholder="Password" class="input input-bordered input-sm w-full"><button class="btn btn-error btn-sm btn-block text-white" onclick="submitLogin()">Masuk</button></div></div></dialog>
+<div class="hero bg-danger text-white text-center py-5" style="margin-top: 76px;">
+    <div class="container">
+        <h1>Perisai Diri Indonesia</h1>
+        <p>Cabang Bojonegoro | Membentuk Karakter, Membangun Prestasi</p>
+        <button class="btn btn-light btn-merah" onclick="showPage('jadwal')">Lihat Jadwal Latihan</button>
+    </div>
+</div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwkNSJZjXlGKS_JU0phZp6gYpqw627J-JeBAWZRpHrCwc2xaDiup2MtbOiFRLelmmyYoQ/exec";
-    
-    var currentTab = "berita";
-    var userAktif = null;
-    var rawDataStorage = { berita: [], jadwal: [], absensi: [], ukt: [], anggota: [] };
-    var mapInstance = null;
+<div class="container mt-4">
+    <!-- Home -->
+    <div id="home" class="page active">
+        <div class="row" id="statistikContainer"><div class="col-12"><div class="loading"><div class="spinner"></div></div></div></div>
+        <h3 class="mt-4">Berita Terbaru</h3>
+        <div id="beritaTerbaruContainer" class="row"></div>
+        <h3 class="mt-4">Jadwal Latihan</h3>
+        <div id="jadwalHomeContainer" class="row"></div>
+    </div>
+    <!-- Berita -->
+    <div id="berita" class="page"><h3>Semua Berita</h3><div id="semuaBeritaContainer" class="row"></div></div>
+    <!-- Jadwal -->
+    <div id="jadwal" class="page"><h3>Jadwal Latihan</h3><div id="jadwalContainer" class="row"></div></div>
+    <!-- Materi -->
+    <div id="materi" class="page"><h3>Materi Latihan</h3><div id="materiContainer" class="row"></div></div>
+    <!-- Dashboard -->
+    <div id="dashboard" class="page">
+        <div class="row">
+            <div class="col-md-3"><div class="sidebar" id="dashboardSidebar"></div></div>
+            <div class="col-md-9"><div id="dashboardContent"><div class="loading"><div class="spinner"></div></div></div></div>
+        </div>
+    </div>
+    <!-- Login -->
+    <div id="login" class="page">
+        <div class="card p-4 mx-auto" style="max-width: 400px;">
+            <h3 class="text-center">Login</h3>
+            <form id="loginForm"><div class="mb-3"><label>Email</label><input type="email" id="loginEmail" class="form-control" required></div><div class="mb-3"><label>Password</label><input type="password" id="loginPassword" class="form-control" required></div><button type="submit" class="btn btn-merah w-100">Login</button></form>
+            <p class="text-center mt-3">Belum punya akun? <a href="#" onclick="showRegister()">Daftar</a></p>
+        </div>
+    </div>
+    <!-- Register -->
+    <div id="register" class="page">
+        <div class="card p-4 mx-auto" style="max-width: 500px;">
+            <h3 class="text-center">Registrasi</h3>
+            <form id="registerForm"><div class="mb-3"><label>Nama</label><input type="text" id="regNama" class="form-control" required></div><div class="mb-3"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div><div class="mb-3"><label>Password</label><input type="password" id="regPassword" class="form-control" required></div><div class="mb-3"><label>Konfirmasi Password</label><input type="password" id="regConfirm" class="form-control" required></div><div class="mb-3"><label>No HP</label><input type="text" id="regNoHP" class="form-control"></div><div class="mb-3"><label>Ranting</label><select id="regRanting" class="form-select"><option value="">Pilih Ranting</option><option>Bojonegoro</option><option>MIN 1 Bojonegoro</option><option>Dander</option><option>Kalitidu</option><option>Trucuk</option><option>Ngraho</option><option>Kedungadem</option></select></div><div class="mb-3"><label>Tingkatan</label><select id="regTingkatan" class="form-select"><option>Dasar 1</option><option>Dasar 2</option><option>Cakel</option><option>Putih</option></select></div><button type="submit" class="btn btn-merah w-100">Daftar</button></form>
+            <p class="text-center mt-3">Sudah punya akun? <a href="#" onclick="showLogin()">Login</a></p>
+        </div>
+    </div>
+</div>
+<footer><p>&copy; 2025 Perisai Diri Bojonegoro</p></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ==================== KONFIGURASI API ====================
+    const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbwWhjBIK8AHCSmd6ub7OLqbCteyanskg6JyAKJE4KuUosByk4MdBXudxtRjQyZ1lKUsvQ/exec'; // GANTI DENGAN URL WEB APP ANDA
 
-    window.onload = function() {
-      cekSesiLokalSistem();
-      initLoadPublicModuleData();
+    // Helper untuk fetch POST
+    async function callAPI(action, data = {}) {
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, ...data })
+        });
+        return await response.json();
+    }
+    async function callGET(action, params = {}) {
+        let url = `${API_BASE_URL}?action=${action}`;
+        Object.keys(params).forEach(k => url += `&${k}=${encodeURIComponent(params[k])}`);
+        const response = await fetch(url, { mode: 'cors' });
+        return await response.json();
+    }
+
+    // Global state
+    let currentUser = null;
+    let authToken = localStorage.getItem('authToken');
+
+    // ==================== UI NAVIGATION ====================
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page).classList.add('active');
+        if (page === 'home') loadHome();
+        if (page === 'berita') loadAllBerita();
+        if (page === 'jadwal') loadJadwal();
+        if (page === 'materi') loadMateri();
+        if (page === 'dashboard' && currentUser) loadDashboard('profil');
+    }
+
+    // ==================== LOAD PUBLIC DATA ====================
+    async function loadHome() {
+        const stats = await callGET('getStats');
+        displayStats(stats);
+        const berita = await callGET('getBerita');
+        displayBeritaTerbaru(berita);
+        const jadwal = await callGET('getJadwal');
+        displayJadwalHome(jadwal);
+    }
+    function displayStats(res) {
+        if(res.success) document.getElementById('statistikContainer').innerHTML = `
+            <div class="col-md-3"><div class="stat-card"><div class="stat-number">${res.data.totalAnggota||0}</div><div>Total Anggota</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="stat-number">${res.data.aktifAnggota||0}</div><div>Anggota Aktif</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="stat-number">${res.data.totalUKT||0}</div><div>Total UKT</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="stat-number">${res.data.uktLulus||0}</div><div>UKT Lulus</div></div></div>`;
+    }
+    function displayBeritaTerbaru(res) {
+        let html=''; if(res.success) res.data.slice(0,3).forEach(b=>{ html+=`<div class="col-md-4"><div class="berita-card p-3"><h5>${b.Judul}</h5><small>${new Date(b.Tanggal).toLocaleDateString()}</small><p>${(b.Isi||'').substring(0,100)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div>`; });
+        document.getElementById('beritaTerbaruContainer').innerHTML=html;
+    }
+    function displayJadwalHome(res) {
+        let html=''; if(res.success) res.data.forEach(j=>{ html+=`<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal} | ${j.Lokasi}</p></div></div>`; });
+        document.getElementById('jadwalHomeContainer').innerHTML=html;
+    }
+    async function loadAllBerita() {
+        const res = await callGET('getBerita');
+        let html=''; if(res.success) res.data.forEach(b=>{ html+=`<div class="col-md-6 mb-3"><div class="berita-card p-3"><h5>${b.Judul}</h5><small>${new Date(b.Tanggal).toLocaleDateString()}</small><p>${(b.Isi||'').substring(0,150)}...</p><button class="btn btn-sm btn-merah" onclick="showDetail('${b.ID_Berita}')">Baca</button></div></div>`; });
+        document.getElementById('semuaBeritaContainer').innerHTML=html;
+    }
+    async function loadJadwal() {
+        const res = await callGET('getJadwal');
+        let html=''; if(res.success) res.data.forEach(j=>{ html+=`<div class="col-md-6"><div class="jadwal-item"><h5>${j.Ranting}</h5><p><i class="far fa-calendar"></i> ${j.Jadwal}<br><i class="fas fa-map-marker-alt"></i> ${j.Lokasi}</p>${j.pic?`<p>Penanggung Jawab: ${j.pic}</p>`:''}</div></div>`; });
+        document.getElementById('jadwalContainer').innerHTML=html;
+    }
+    async function loadMateri() {
+        const res = await callGET('getMateri');
+        let html=''; if(res.success) res.data.forEach(m=>{ html+=`<div class="col-md-4 mb-3"><div class="card p-3"><h5>${m.Nama_Materi}</h5><p>${m.Deskripsi||''}</p>${m.Link_Video?`<a href="${m.Link_Video}" target="_blank" class="btn btn-sm btn-merah">Lihat Video</a>`:''}</div></div>`; });
+        document.getElementById('materiContainer').innerHTML=html;
+    }
+    async function showDetail(id) {
+        const res = await callGET('getBerita', { id }); // butuh fungsi getBeritaById di backend? sementara pakai getBerita lalu filter
+        // Untuk sederhana, kita tampilkan dengan data yang sudah ada. Bisa juga buat endpoint getBeritaById.
+        Swal.fire({ title: 'Detail', text: 'Fitur detail berita sedang dikembangkan', confirmButtonColor:'#DC2626' });
+    }
+
+    // ==================== AUTH ====================
+    function showLogin() { showPage('login'); }
+    function showRegister() { showPage('register'); }
+    document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await callAPI('login', { email: loginEmail.value, password: loginPassword.value });
+        if(res.success) {
+            authToken = res.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = res.user;
+            updateUI();
+            showPage('dashboard');
+            loadDashboard('profil');
+            Swal.fire('Sukses','Login berhasil','success');
+        } else Swal.fire('Gagal',res.message,'error');
+    });
+    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(regPassword.value !== regConfirm.value) { Swal.fire('Error','Password tidak cocok','error'); return; }
+        const userData = {
+            Email: regEmail.value,
+            Password_Hash: regPassword.value,
+            Nama: regNama.value,
+            No_HP: regNoHP.value,
+            Ranting: regRanting.value,
+            Tingkatan: regTingkatan.value,
+            Role: 'Anggota',
+            Status: 'Aktif',
+            CreatedAt: new Date().toISOString()
+        };
+        const res = await callAPI('register', { userData });
+        if(res.success) { Swal.fire('Sukses',res.message,'success'); showLogin(); }
+        else Swal.fire('Gagal',res.message,'error');
+    });
+    async function logout() {
+        if(authToken) await callAPI('logout', { token: authToken });
+        authToken = null;
+        localStorage.removeItem('authToken');
+        currentUser = null;
+        updateUI();
+        showPage('home');
+    }
+    async function updateUI() {
+        const nav = document.getElementById('userNav');
+        if(currentUser) {
+            nav.innerHTML = `<div class="dropdown"><button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">${currentUser.nama}</button><ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="showPage('dashboard')">Dashboard</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul></div>`;
+        } else {
+            nav.innerHTML = `<button class="btn btn-light me-1" onclick="showLogin()">Login</button><button class="btn btn-outline-light" onclick="showRegister()">Daftar</button>`;
+        }
+    }
+
+    // ==================== DASHBOARD ====================
+    async function loadDashboard(section) {
+        if(!currentUser) return;
+        const role = currentUser.role;
+        const sidebar = document.getElementById('dashboardSidebar');
+        sidebar.innerHTML = `
+            <div class="text-center"><img src="https://via.placeholder.com/80" class="profile-img mb-2"><h5>${currentUser.nama}</h5><span class="badge bg-danger">${role}</span></div><hr>
+            <div class="sidebar-menu">
+                <a href="#" onclick="loadDashboard('profil')" class="${section=='profil'?'active':''}"><i class="fas fa-user"></i> Profil Saya</a>
+                <a href="#" onclick="loadDashboard('anggota')" class="${section=='anggota'?'active':''}" id="menuAnggota"><i class="fas fa-users"></i> Data Anggota</a>
+                <a href="#" onclick="loadDashboard('ukt')" class="${section=='ukt'?'active':''}"><i class="fas fa-graduation-cap"></i> UKT</a>
+                ${(role=='AdminRanting'||role=='AdminCabang')?`<a href="#" onclick="loadDashboard('tambahAnggota')" class="${section=='tambahAnggota'?'active':''}"><i class="fas fa-plus"></i> Tambah Anggota</a>`:''}
+            </div><hr><button class="btn btn-outline-danger w-100" onclick="logout()">Logout</button>
+        `;
+        if(role=='Anggota') document.getElementById('menuAnggota').style.display = 'none';
+        else document.getElementById('menuAnggota').style.display = 'block';
+        
+        if(section === 'profil') await loadProfil();
+        else if(section === 'anggota') await loadAnggota();
+        else if(section === 'ukt') await loadUKT();
+        else if(section === 'tambahAnggota') showTambahAnggota();
+    }
+
+    async function loadProfil() {
+        const cont = document.getElementById('dashboardContent');
+        const res = await callAPI('getAnggota', { ranting: '', token: authToken });
+        if(res.success) {
+            const myData = res.data.find(a => a.Email === currentUser.email) || {};
+            cont.innerHTML = `<div class="card p-4"><h4>Profil Saya</h4><form id="profilForm"><div class="mb-3"><label>Nama</label><input name="Nama" class="form-control" value="${myData.Nama||currentUser.nama||''}"></div><div class="mb-3"><label>Email</label><input class="form-control" value="${currentUser.email}" disabled></div><div class="mb-3"><label>No HP</label><input name="No_HP" class="form-control" value="${myData.No_HP||''}"></div><div class="mb-3"><label>Ranting</label><input class="form-control" value="${myData.Ranting||currentUser.ranting||''}" disabled></div><div class="mb-3"><label>Tingkatan</label><input class="form-control" value="${myData.Tingkatan||''}" disabled></div><button type="submit" class="btn btn-merah">Update</button></form></div>`;
+            document.getElementById('profilForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fd = new FormData(e.target);
+                const updated = {};
+                for(let [k,v] of fd) updated[k] = v;
+                const res2 = await callAPI('updateProfile', { email: currentUser.email, updatedData: updated, token: authToken });
+                if(res2.success) { Swal.fire('Sukses',res2.message,'success'); loadProfil(); }
+                else Swal.fire('Error',res2.message,'error');
+            });
+        }
+    }
+
+    async function loadAnggota() {
+        const cont = document.getElementById('dashboardContent');
+        cont.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        const res = await callAPI('getAnggota', { ranting: '', token: authToken });
+        if(res.success && res.data.length) {
+            let html = '<table class="table table-bordered"><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Ranting</th><th>Tingkatan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>';
+            res.data.forEach(a => {
+                html += `<tr><td>${a.ID_Anggota||'-'}</td><td>${a.Nama||'-'}</td><td>${a.Email||'-'}</td><td>${a.Ranting||'-'}</td><td>${a.Tingkatan||'-'}</td><td>${a.Status_Aktif||'Aktif'}</td>
+                <td><button class="btn btn-sm btn-warning" onclick="editAnggota('${a.ID_Anggota}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteAnggota('${a.ID_Anggota}')">Hapus</button></td></tr>`;
+            });
+            html += '</tbody></table>';
+            cont.innerHTML = html;
+        } else cont.innerHTML = '<p>Tidak ada data anggota</p>';
+    }
+
+    function showTambahAnggota() {
+        const cont = document.getElementById('dashboardContent');
+        cont.innerHTML = `<div class="card p-4"><h4>Tambah Anggota</h4><form id="formTambah"><div class="mb-3"><label>ID Anggota</label><input name="ID_Anggota" class="form-control" required></div><div class="mb-3"><label>Nama</label><input name="Nama" class="form-control" required></div><div class="mb-3"><label>Email</label><input name="Email" class="form-control"></div><div class="mb-3"><label>No HP</label><input name="No_HP" class="form-control"></div><div class="mb-3"><label>Ranting</label><select name="Ranting" class="form-select"><option>Bojonegoro</option><option>MIN 1 Bojonegoro</option><option>Dander</option><option>Kalitidu</option><option>Trucuk</option><option>Ngraho</option><option>Kedungadem</option></select></div><div class="mb-3"><label>Tingkatan</label><select name="Tingkatan" class="form-select"><option>Dasar 1</option><option>Dasar 2</option><option>Cakel</option><option>Putih</option></select></div><div class="mb-3"><label>Cabang</label><input name="Cabang" class="form-control" value="Bojonegoro"></div><div class="mb-3"><label>Status</label><select name="Status_Aktif" class="form-select"><option>Aktif</option><option>Nonaktif</option></select></div><button type="submit" class="btn btn-merah">Simpan</button></form></div>`;
+        document.getElementById('formTambah').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = {};
+            for(let [k,v] of fd) data[k] = v;
+            const res = await callAPI('addAnggota', { anggotaData: data, token: authToken });
+            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadDashboard('anggota'); }
+            else Swal.fire('Error',res.message,'error');
+        });
+    }
+
+    window.editAnggota = async (id) => {
+        const { value: formValues } = await Swal.fire({
+            title: 'Edit Anggota',
+            html: `<input id="editNama" class="swal2-input" placeholder="Nama"><input id="editEmail" class="swal2-input" placeholder="Email"><select id="editTingkatan" class="swal2-select"><option>Dasar 1</option><option>Dasar 2</option><option>Cakel</option><option>Putih</option></select>`,
+            preConfirm: () => ({ Nama: document.getElementById('editNama').value, Email: document.getElementById('editEmail').value, Tingkatan: document.getElementById('editTingkatan').value })
+        });
+        if(formValues) {
+            const res = await callAPI('updateAnggota', { idAnggota: id, updatedData: formValues, token: authToken });
+            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadAnggota(); }
+            else Swal.fire('Error',res.message,'error');
+        }
+    };
+    window.deleteAnggota = async (id) => {
+        const confirm = await Swal.fire({ title:'Yakin?', text:'Anggota akan dinonaktifkan', icon:'warning', showCancelButton:true });
+        if(confirm.isConfirmed) {
+            const res = await callAPI('deleteAnggota', { idAnggota: id, token: authToken });
+            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadAnggota(); }
+            else Swal.fire('Error',res.message,'error');
+        }
     };
 
-    function callAPI(payload, successCallback) {
-      document.getElementById('global-loader').classList.remove('hidden');
-      fetch(API_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payload) })
-      .then(res => res.json())
-      .then(res => { 
-        document.getElementById('global-loader').classList.add('hidden'); 
-        if (res && res.sukses === false && res.error) { alert("🚨 Kendala Server Database: " + res.error); return; }
-        successCallback(res); 
-      })
-      .catch(err => { document.getElementById('global-loader').classList.add('hidden'); alert("❌ Gagal terhubung ke database."); });
+    async function loadUKT() {
+        const cont = document.getElementById('dashboardContent');
+        cont.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        const res = await callAPI('getUKT', { email: currentUser.email, token: authToken });
+        if(res.success) {
+            let html = `<div class="card p-4"><h4>Riwayat UKT</h4><button class="btn btn-merah mb-3" onclick="daftarUKT()">Daftar UKT Baru</button><table class="table"><thead><tr><th>ID</th><th>Tingkatan Tujuan</th><th>Tanggal</th><th>Status</th></tr></thead><tbody>`;
+            res.data.forEach(u => {
+                html += `<tr><td>${u.ID_UKT}</td><td>${u.Tingkatan_Tujuan}</td><td>${new Date(u.Tanggal_Pelaksanaan).toLocaleDateString()}</td><td>${u.Status_Kelulusan||'Menunggu'}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            cont.innerHTML = html;
+        }
     }
 
-    function bersihLinkDrive(url) {
-      if (!url || typeof url !== 'string') return "";
-      if (url.includes("drive.google.com")) {
-        var fileId = "";
-        if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; } 
-        else if (url.includes("/d/")) { fileId = url.split("/d/")[1].split("/")[0]; }
-        if (fileId !== "") { return "https://lh3.googleusercontent.com/d/" + fileId; }
-      }
-      return url;
-    }
-
-    function initLoadPublicModuleData() {
-      var roleUser = userAktif ? userAktif.role : "Public";
-      callAPI({ action: 'getBerita', role: roleUser }, function(dataBerita) {
-        rawDataStorage.berita = dataBerita;
-        renderBeritaVisual(dataBerita);
-        callAPI({ action: 'getJadwal' }, function(dataJadwal) {
-          rawDataStorage.jadwal = dataJadwal;
-          renderJadwalVisual(dataJadwal);
+    window.daftarUKT = async () => {
+        const { value: tingkatan } = await Swal.fire({
+            title: 'Daftar UKT',
+            input: 'select',
+            inputOptions: { 'Dasar 2':'Dasar 2','Cakel':'Cakel','Putih':'Putih','Putih Hijau':'Putih Hijau','Hijau':'Hijau' },
+            showCancelButton: true
         });
-      });
-    }
-
-    function cekSesiLokalSistem() {
-      var dataLokal = localStorage.getItem('session_pd_user');
-      if (dataLokal) { terapkanSesiUI(JSON.parse(dataLokal)); loadDataTerproteksi(); }
-    }
-
-    function terapkanSesiUI(user) {
-      userAktif = user;
-      document.getElementById('btn-show-auth').classList.add('hidden');
-      document.getElementById('user-profile-badge').classList.remove('hidden');
-      document.getElementById('protected-menus').classList.remove('hidden');
-      document.getElementById('user-menu-name').innerText = user.nama;
-      document.getElementById('user-menu-role').innerText = user.role;
-      if (user.foto) document.getElementById('user-avatar-img').src = bersihLinkDrive(user.foto);
-      
-      // Inject data profil awal ke form profil mandiri
-      document.getElementById('prof-nama').value = user.nama;
-      document.getElementById('prof-ttl').value = user.ttl || "";
-      document.getElementById('prof-foto').value = user.foto || "";
-      document.getElementById('prof-password').value = ""; // dikosongkan demi keamanan
-
-      if (user.role.includes("Admin")) {
-        document.getElementById('menu-anggota').classList.remove('hidden');
-        document.querySelectorAll('.opsi-admin').forEach(el => el.classList.remove('hidden'));
-      }
-    }
-
-    function submitLogin() {
-      var email = document.getElementById('log-email').value; var pass = document.getElementById('log-pass').value;
-      callAPI({ action: 'login', email: email, pass: pass }, function(res) {
-        if (res.sukses) { document.getElementById('modalAuth').close(); localStorage.setItem('session_pd_user', JSON.stringify(res)); terapkanSesiUI(res); loadDataTerproteksi(); } 
-        else { alert(res.pesan); }
-      });
-    }
-
-    function logoutApp() { localStorage.removeItem('session_pd_user'); location.reload(); }
-
-    function loadDataTerproteksi() {
-      if(!userAktif) return;
-      callAPI({ action: 'fetchProtectedData', email: userAktif.email, role: userAktif.role }, function(res) {
-        rawDataStorage.berita = res.berita || []; rawDataStorage.jadwal = res.jadwal || [];
-        rawDataStorage.absensi = res.absensi || []; rawDataStorage.ukt = res.ukt || [];
-        if(userAktif.role.includes("Admin")) { rawDataStorage.anggota = res.anggota || []; }
-        prosesEngineData();
-      });
-    }
-
-    // ====================================================================
-    // LOGIKA MODUL BERITA (DENGAN TANGGAL DAN MANAJEMEN DRAFT)
-    // ====================================================================
-    function renderBeritaVisual(data) {
-      var container = document.getElementById('list-berita-render'); container.innerHTML = '';
-      var isAdmin = (userAktif && userAktif.role.includes("Admin"));
-      data.forEach(b => {
-        var imgClean = bersihLinkDrive(b.foto);
-        var imgHtml = imgClean ? `<img src="${imgClean}" class="w-full h-48 object-cover bg-base-300">` : '';
-        var txtIsi = b.isi.length > 140 ? `<span class="short-text">${b.isi.substring(0, 140)}...</span><span class="full-text hidden whitespace-pre-line">${b.isi}</span><button class="btn btn-link btn-xs p-0 text-error block font-bold mt-1" onclick="toggleReadMoreText(this)">lihat selengkapnya</button>` : `<span class="whitespace-pre-line">${b.isi}</span>`;
-        var badgeDraft = b.status === "Draft" ? `<div class="badge badge-warning text-[10px] font-bold">DRAFT</div>` : '';
-        var adminCtrl = isAdmin ? `<div class="card-actions justify-end border-t pt-2 mt-2"><button class="btn btn-xs btn-outline" onclick="editBeritaByRow(${b.rowNum})">📝 Edit</button><button class="btn btn-xs btn-error text-white" onclick="hapusRowUniversal('Berita', ${b.rowNum})">✕</button></div>` : '';
-        container.innerHTML += `<div class="card bg-base-100 border border-base-300 overflow-hidden shadow-sm"><div class="card-body p-4"><h2 class="card-title text-sm font-bold">${b.judul} ${badgeDraft} <div class="badge badge-error text-white text-[10px]">${b.kategori}</div></h2><div class="text-[10px] opacity-60 flex justify-between border-b pb-1"><span>📅 ${b.tanggal}</span><span>✍️ Oleh: <b>${b.publisher}</b></span></div><div class="text-xs text-gray-600 mt-2">${txtIsi}</div>${adminCtrl}</div></div>`;
-      });
-    }
-
-    function toggleReadMoreText(btn) { var parent = btn.parentElement; var shortSpan = parent.querySelector('.short-text'); var fullSpan = parent.querySelector('.full-text'); if (shortSpan.classList.contains('hidden')) { shortSpan.classList.remove('hidden'); fullSpan.classList.add('hidden'); btn.innerText = "lihat selengkapnya"; } else { shortSpan.classList.add('hidden'); fullSpan.classList.remove('hidden'); btn.innerText = "sembunyikan"; } }
-    function bukaFormBerita() { document.getElementById('form-berita-block').classList.remove('hidden'); document.getElementById('berita-row-num').value = ""; document.getElementById('berita-judul').value = ""; document.getElementById('berita-isi').value = ""; document.getElementById('berita-tanggal').value = new Date().toISOString().substring(0,10); }
-    function editBeritaByRow(rowNum) { var item = rawDataStorage.berita.find(x => x.rowNum == rowNum); if (item) { document.getElementById('form-berita-block').classList.remove('hidden'); document.getElementById('berita-row-num').value = item.rowNum; document.getElementById('berita-judul').value = item.judul; document.getElementById('berita-isi').value = item.isi; document.getElementById('berita-tanggal').value = item.tanggal; document.getElementById('berita-kat').value = item.kategori; document.getElementById('berita-status').value = item.status; document.getElementById('berita-foto-url').value = item.foto || ""; } }
-    function simpanBeritaWeb() {
-      var d = { rowNum: document.getElementById('berita-row-num').value, judul: document.getElementById('berita-judul').value, isi: document.getElementById('berita-isi').value, tanggal: document.getElementById('berita-tanggal').value, kategori: document.getElementById('berita-kat').value, status: document.getElementById('berita-status').value, foto: document.getElementById('berita-foto-url').value, publisher: userAktif.nama };
-      callAPI({ action: 'simpanBerita', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-berita-block').classList.add('hidden'); loadDataTerproteksi(); });
-    }
-
-    // ====================================================================
-    // LOGIKA MODUL JADWAL LATIHAN
-    // ====================================================================
-    function renderJadwalVisual(data) {
-      var tbody = document.getElementById('list-jadwal-render'); tbody.innerHTML = '';
-      data.forEach(j => {
-        var gmapsUrl = j.koordinat ? `https://www.google.com/maps/search/?api=1&query=$${j.koordinat}` : `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(j.tempat + ' Perisai Diri')}`;
-        var noBersih = j.kontak.replace(/[^0-9]/g, ''); if (noBersih.startsWith('0')) noBersih = '62' + noBersih.substr(1);
-        var btnMap = j.koordinat ? `<button class="btn btn-xs btn-outline btn-error font-bold" onclick="bukaPetaPopup('${j.koordinat}', '${j.tempat}')">🗺️ Lihat Peta</button>` : '-';
-        tbody.innerHTML += `<tr class="text-xs"><td><a href="${gmapsUrl}" target="_blank" class="link link-hover text-error font-bold block">🏢 ${j.tempat}</a></td><td>📅 ${j.hari}<br>⏰ ${j.jam}</td><td><a href="https://wa.me/${noBersih}" target="_blank" class="link link-hover font-semibold">🥋 ${j.pic}</a></td><td><a href="https://wa.me/${noBersih}" target="_blank" class="link link-success font-bold">${j.kontak}</a></td><td>${btnMap}</td></tr>`;
-      });
-    }
-
-    function bukaPetaPopup(koordinatStr, namaTempat) {
-      document.getElementById('modalPeta').showModal(); var parts = koordinatStr.split(","); var lat = parseFloat(parts[0]); var lng = parseFloat(parts[1]);
-      setTimeout(function() {
-        if (mapInstance) mapInstance.remove();
-        mapInstance = L.map('peta-box').setView([lat, lng], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-        L.marker([lat, lng]).addTo(mapInstance).bindPopup(`<b>${namaTempat}</b>`).openPopup();
-      }, 300);
-    }
-
-    // ====================================================================
-    // FITUR PROFIL BIODATA MANDIRI & GANTI PASSWORD
-    // ====================================================================
-    function prosesSimpanProfilMandiri() {
-      var passBaru = document.getElementById('prof-password').value;
-      var d = {
-        nama: document.getElementById('prof-nama').value,
-        ttl: document.getElementById('prof-ttl').value,
-        foto: document.getElementById('prof-foto').value,
-        password: passBaru !== "" ? passBaru : userAktif.password // jika kosong, pertahankan yang lama
-      };
-      if (!d.nama) { alert("Nama lengkap tidak boleh kosong!"); return; }
-      
-      callAPI({ action: 'updateProfilMandiri', email: userAktif.email, data: d }, function(res) {
-        alert(res.pesan);
-        if (res.sukses) {
-          // Update data sesi lokal agar perubahan nama/foto langsung sinkron di UI
-          userAktif.nama = d.nama; userAktif.ttl = d.ttl; userAktif.foto = d.foto; userAktif.password = d.password;
-          localStorage.setItem('session_pd_user', JSON.stringify(userAktif));
-          terapkanSesiUI(userAktif);
-          loadDataTerproteksi();
+        if(tingkatan) {
+            const res = await callAPI('addUKT', { uktData: { Tingkatan_Tujuan: tingkatan }, token: authToken });
+            if(res.success) { Swal.fire('Sukses',res.message,'success'); loadUKT(); }
+            else Swal.fire('Error',res.message,'error');
         }
-      });
-    }
+    };
 
-    // ====================================================================
-    // LOGIKA MODUL MANAJEMEN ANGGOTA BERJENJANG HAK AKSES
-    // ====================================================================
-    function renderAnggotaVisual(data) {
-      var tbody = document.getElementById('list-anggota-render'); tbody.innerHTML = '';
-      data.forEach(r => {
-        var picClean = bersihLinkDrive(r.foto);
-        var img = picClean ? `<img src="${picClean}" class="w-8 h-8 rounded-full object-cover">` : '<div class="w-8 h-8 bg-gray-300 rounded-full"></div>';
-        tbody.innerHTML += `<tr class="text-xs"><td>${img}</td><td><b>${r.nama}</b><br><span class="opacity-50 text-[10px]">${r.ttl||'-'}</span></td><td>${r.email}</td><td><span class="badge badge-sm badge-info text-white">${r.role}</span></td><td><b>${r.ranting}</b></td><td>${r.tingkatan}</td><td><button class="btn btn-xs btn-outline btn-warning" onclick="editAnggotaByRow(${r.rowNum})">📝 Kelola</button></td></tr>`;
-      });
-    }
-
-    function editAnggotaByRow(rowNum) {
-      var item = rawDataStorage.anggota.find(x => x.rowNum == rowNum);
-      if(item) {
-        document.getElementById('form-anggota-block').classList.remove('hidden');
-        document.getElementById('anggota-row-num').value = item.rowNum; document.getElementById('agt-nama').value = item.nama;
-        document.getElementById('agt-email').value = item.email; document.getElementById('agt-pass').value = item.password;
-        document.getElementById('agt-role').value = item.role; document.getElementById('agt-ranting').value = item.ranting;
-        document.getElementById('agt-tingkatan').value = item.tingkatan; document.getElementById('agt-foto-url').value = item.foto || "";
-        document.getElementById('agt-ttl').value = item.ttl || "";
-        
-        // SECURITY GATE LOCK: Jika yang masuk Admin Ranting, kunci kolom edit Ranting ke rantingnya saja
-        if(userAktif.role === "Admin Ranting") {
-          document.getElementById('agt-ranting').disabled = true;
-          document.getElementById('agt-role').innerHTML = '<option value="Anggota">Anggota</option><option value="Admin Ranting">Admin Ranting</option>';
-        } else {
-          document.getElementById('agt-ranting').disabled = false;
-        }
-      }
-    }
-
-    function simpanAnggotaAdminWeb() {
-      var d = { rowNum: document.getElementById('anggota-row-num').value, email: document.getElementById('agt-email').value, password: document.getElementById('agt-pass').value, role: document.getElementById('agt-role').value, ranting: document.getElementById('agt-ranting').value, tingkatan: document.getElementById('agt-tingkatan').value, foto: document.getElementById('agt-foto-url').value, ttl: document.getElementById('agt-ttl').value };
-      callAPI({ action: 'simpanAnggotaAdmin', email: userAktif.email, data: d }, function(msg) { alert(msg); document.getElementById('form-anggota-block').classList.add('hidden'); loadDataTerproteksi(); });
-    }
-
-    // LAYER ROUTER DRIVER WEB
-    function gantiTab(tabName) {
-      currentTab = tabName;
-      document.querySelectorAll('#main-menu-tabs button').forEach(b => b.classList.remove('active', 'font-bold'));
-      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-      if(document.getElementById('menu-' + tabName)) document.getElementById('menu-' + tabName).classList.add('active', 'font-bold');
-      if(document.getElementById('view-' + tabName)) document.getElementById('view-' + tabName).classList.remove('hidden');
-      prosesEngineData();
-    }
-
-    function prosesEngineData() {
-      var targetData = rawDataStorage[currentTab] || [];
-      if (currentTab === 'berita') renderBeritaVisual(targetData);
-      else if (currentTab === 'jadwal') renderJadwalVisual(targetData);
-      else if (currentTab === 'anggota') renderAnggotaVisual(targetData);
-    }
-
-    function hapusRowUniversal(sheetName, rowNum) { if(confirm("Hapus baris data dari database?")) { callAPI({ action: 'deleteRow', email: userAktif.email, sheetName: sheetName, rowNum: rowNum }, function(msg) { alert(msg); loadDataTerproteksi(); }); } }
-    function bukaModalAuth() { document.getElementById('modalAuth').showModal(); }
-  </script>
+    // ==================== INITIAL CHECK ====================
+    (async () => {
+        if(authToken) {
+            const res = await callAPI('verifySession', { token: authToken });
+            if(res.success) {
+                const userRes = await callAPI('getAnggota', { ranting: '', token: authToken });
+                if(userRes.success && userRes.data.length) {
+                    const userData = userRes.data.find(u => u.Email === res.email);
+                    if(userData) currentUser = { email: res.email, nama: userData.Nama, role: userData.Role, ranting: userData.Ranting };
+                    else currentUser = { email: res.email, nama: res.email, role: 'Anggota', ranting: '' };
+                } else currentUser = { email: res.email, nama: res.email, role: 'Anggota', ranting: '' };
+                updateUI();
+                showPage('dashboard');
+                loadDashboard('profil');
+            } else { authToken = null; localStorage.removeItem('authToken'); updateUI(); showPage('home'); loadHome(); }
+        } else { updateUI(); showPage('home'); loadHome(); }
+    })();
+</script>
 </body>
 </html>
